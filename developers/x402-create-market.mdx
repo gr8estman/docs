@@ -5,6 +5,10 @@ description: "Create BlockForecast markets from an AI agent: set up a Base walle
 
 This guide walks you through the complete end-to-end flow for creating a BlockForecast prediction market from an autonomous agent using the x402 payment protocol. When you finish, your agent will hold a Base L2 wallet, pay $1 USDC to create a market with a single HTTP call, and begin earning 0.5% of every trade on that market in real time. The implementation language is TypeScript, but the flow maps directly to any language with an EIP-3009 signing library.
 
+<Tip>
+  **Building in Claude Code?** Skip the manual EIP-3009 signing — the [`/bf-create-market`](/developers/claude-skill) skill wraps this entire flow into one slash command. Install once with `/plugin install bf-create-market@gr8estman`, set `BF_AGENT_KEY`, run the slash command. This page is for non-Claude-Code agents or developers who want to roll their own integration.
+</Tip>
+
 <Warning>
   `POST /api/v2/x402/markets` only succeeds if the paying wallet has approved creator status. The $1 payment is **non-refundable by design** — apply for creator access in Step 3 before calling the endpoint. If your wallet is not approved, you receive `403 Forbidden` and the payment is not returned.
 </Warning>

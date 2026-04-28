@@ -1,0 +1,134 @@
+---
+title: "Claude Code Skill — /bf-create-market"
+description: "Install the bf-create-market skill in Claude Code and create BlockForecast prediction markets with one slash command. Wraps the full x402 + creator-fee flow — no glue code."
+---
+
+The **`bf-create-market`** Claude Code skill is the simplest way to launch BlockForecast markets from an AI agent. Install once, run a slash command, the skill handles the rest: derives your wallet from a private key, checks creator approval, signs the $1 USDC payment via x402 on Base, posts the market, and returns the URL. Creator-fee earnings (0.5% of every trade) flow back to your wallet automatically.
+
+If you're not using Claude Code, see the manual [x402 Quickstart](/developers/x402-create-market) — same endpoint, you write the glue code.
+
+## Install
+
+In a Claude Code session:
+
+```bash
+/plugin marketplace add gr8estman/blockforecast-skills
+/plugin install bf-create-market@gr8estman
+```
+
+The skill is open source — source on GitHub: [gr8estman/blockforecast-skills](https://github.com/gr8estman/blockforecast-skills).
+
+## One-time setup
+
+<Steps>
+  <Step title="Get an EVM wallet">
+    Any tooling — `viem`, MetaMask, Coinbase, hardware wallet. The skill needs the **private key** of the wallet your agent will create markets from.
+
+    ```js
+    import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
+    const key = generatePrivateKey();
+    console.log('address:', privateKeyToAccount(key).address);
+    console.log('key:    ', key);
+    ```
+
+    Save the key in your secrets manager (1Password, Doppler, AWS Secrets Manager, env file in your secrets store) — this is plain-text private-key custody, treat it accordingly.
+  </Step>
+  <Step title="Fund with USDC on Base">
+    Send ~$5 USDC (Base mainnet) to the agent address. Bridge from Ethereum mainnet via the [official Base bridge](https://bridge.base.org), or off-ramp directly from Coinbase to Base. Each market creation costs **$1 USDC** plus a few cents of gas.
+  </Step>
+  <Step title="Apply for creator access">
+    Visit [blockforecast.io/apply](https://blockforecast.io/apply) and sign in with the same wallet (use "Connect wallet" → External wallet). Submit the application. Approval typically lands in under 24 hours; you'll be notified via X DM on the handle you submitted.
+
+    <Note>
+      The skill **will not call the paid endpoint** until your wallet shows `status: approved`. The $1 x402 fee is non-refundable on unapproved wallets, so apply first.
+    </Note>
+  </Step>
+  <Step title="Set the env var">
+    ```bash
+    export BF_AGENT_KEY="0x<your-64-char-hex-key>"
+    ```
+
+    Add it to your shell rc, your secrets store, or whatever launches your Claude Code session.
+  </Step>
+</Steps>
+
+## Usage
+
+```
+/bf-create-market "Will the Fed cut rates in May 2026?" 2026-05-31
+```
+
+The skill will:
+
+1. Check `BF_AGENT_KEY` is set
+2. Verify the wallet is approved
+3. Show you a confirmation summary
+4. **Wait for your "yes"** before spending USDC
+5. POST to BlockForecast with x402 payment
+6. Return the live market URL
+
+### Dry run
+
+To verify your setup without spending USDC:
+
+```bash
+DRY_RUN=1 /bf-create-market "Will X happen by Y?" 2026-12-31
+```
+
+The skill runs all preflight checks and prints what it *would* send, then exits.
+
+## Inputs
+
+| Argument | Required | Format | Notes |
+|----------|----------|--------|-------|
+| `question` | yes | string ≥10 chars | Binary, ends with `?` |
+| `resolveDate` | yes | `YYYY-MM-DD` | Must be in the future |
+| `category` | no | one of `crypto`, `politics`, `sports`, `culture`, `science`, `world`, `ai`, `esports` | Default: `crypto` |
+
+Behind the scenes the skill `POST`s to `/api/v2/x402/markets` — the [Create Market via x402](/developers/x402-create-market) page documents the underlying payload and response.
+
+## Costs
+
+| Action | Cost |
+|--------|------|
+| Apply for creator access | Free |
+| Create one market via the skill | $1 USDC + ~$0.001 gas |
+| Earn from trades on your market | 0.5% of every trade — paid to your wallet in real time |
+| Withdraw earnings | Gas only |
+
+A market doing $50k of lifetime volume nets the creator $250. Most active creators run a portfolio of 30+ markets.
+
+## Errors and what to do
+
+| Skill error | Meaning |
+|---|---|
+| `missing_key` | Run `export BF_AGENT_KEY="0x..."` |
+| `bad_key` | Key must be 32 bytes hex with optional `0x` prefix |
+| `creator_not_approved` | One-time apply at [/apply](https://blockforecast.io/apply) |
+| `creator_pending` | Wait for approval (~24h) — you'll be DM'd on X when it lands |
+| `creator_rejected` | See rejection reason; address it; reapply at /apply |
+| `creator_suspended` | Contact [support@blockforecast.io](mailto:support@blockforecast.io) |
+| `insufficient_usdc` | Add USDC on Base to the agent wallet |
+| `payment_failed` | Coinbase CDP facilitator hiccup — retry in a minute |
+
+## Security notes
+
+- The skill **only signs the exact x402 payment payload** for `POST /api/v2/x402/markets`. It does not trade, withdraw, or move funds.
+- Creator-fee earnings flow to the wallet derived from `BF_AGENT_KEY`. Keep that key tightly scoped — anyone with it can also withdraw your earnings.
+- The skill prompts for explicit confirmation before every paid call. There is no auto-execute mode.
+- Treat `BF_AGENT_KEY` like a production secret: rotate periodically, never commit, never paste in chat.
+
+## Roadmap
+
+These skills are planned next — they share the same wallet + creator setup:
+
+- `bf-resolve-oracle` — query oracle consensus on any yes/no question ($0.05 USDC per call)
+- `bf-check-balance` — read agent wallet's USDC balance + open positions
+- `bf-list-markets` — search BlockForecast markets by category
+- `bf-trade` — place a trade on an existing market
+
+## Source + support
+
+- Skill source: [github.com/gr8estman/blockforecast-skills](https://github.com/gr8estman/blockforecast-skills)
+- Issues / feature requests: [open one on GitHub](https://github.com/gr8estman/blockforecast-skills/issues)
+- Email: [support@blockforecast.io](mailto:support@blockforecast.io)

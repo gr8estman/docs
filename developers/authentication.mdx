@@ -1,82 +1,97 @@
 ---
 title: "API Authentication: Wallet Signatures and API Keys"
-description: "Authenticate with the BlockForecast API using wallet-signed messages. Learn how to obtain and use API keys, handle auth errors, and keep your key secure."
+description: "Authenticate with the BlockForecast API. Issue, regenerate, and revoke keys via a nonce-bound wallet signature flow. No accounts, no OAuth — your wallet is your identity."
 ---
 
-BlockForecast uses a wallet-signature authentication model: you prove ownership of an Ethereum address by signing a structured message, and the API returns a short-lived key tied to that address. Every subsequent request passes this key in the `X-API-Key` header. There is no username/password and no OAuth flow — your wallet is your identity.
+BlockForecast uses a wallet-signature authentication model: you prove ownership of an EVM address by signing a server-issued challenge, and the API returns a long-lived key tied to that address. Every subsequent request passes this key in the `X-API-Key` header. There is no username/password and no OAuth flow.
 
-## Obtain an API key
+<Tip>
+  **Easiest path:** sign in at [blockforecast.io/settings/api-keys](https://blockforecast.io/settings/api-keys) and tap **Generate key**. Privy pops the wallet signature, the key is shown once, you copy and store it. Use the programmatic flow below only if you're issuing keys from CI / a server / a script.
+</Tip>
 
-To get a key you need an EVM-compatible wallet (MetaMask, Coinbase Wallet, a hardware wallet, or a programmatically generated key). The signing flow is:
+## Issue a key (programmatic flow)
 
-1. Construct a plain-text message that includes a timestamp to prevent replay attacks.
-2. Sign the message with your wallet's private key (EIP-191 personal sign).
-3. POST the address, message, and signature to `/api/v2/auth/token`.
+Three steps: request a challenge, sign the exact message it returns, post both back. Each nonce is single-use and bound to your wallet + the action (`issue`, `revoke`, `regenerate`), so an intercepted signature can't be replayed for any other operation.
 
 <Steps>
-  <Step title="Construct the message">
-    The message must be in the format `BlockForecast auth – <unix_timestamp>`. Use a timestamp within the last 5 minutes or the server will reject it.
+  <Step title="Request a challenge">
+    `POST /api/v2/auth/challenge` returns a single-use nonce + the exact message your wallet must sign.
 
     <CodeGroup>
 
     ```bash curl
-    # Generate a fresh Unix timestamp
-    TIMESTAMP=$(date +%s)
-    MESSAGE="BlockForecast auth – $TIMESTAMP"
-    echo $MESSAGE
+    curl -X POST https://blockforecast.io/api/v2/auth/challenge \
+      -H "Content-Type: application/json" \
+      -d '{ "address": "0xYourWalletAddress", "action": "issue" }'
     ```
 
     ```python Python
-    import time
-    message = f"BlockForecast auth – {int(time.time())}"
+    import requests
+    chal = requests.post(
+      "https://blockforecast.io/api/v2/auth/challenge",
+      json={"address": address, "action": "issue"},
+    ).json()["data"]
+    nonce, message = chal["nonce"], chal["message"]
     ```
 
     ```typescript JavaScript / TypeScript
-    const timestamp = Math.floor(Date.now() / 1000);
-    const message = `BlockForecast auth – ${timestamp}`;
+    const chal = await fetch("https://blockforecast.io/api/v2/auth/challenge", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ address, action: "issue" }),
+    }).then(r => r.json());
+    const { nonce, message } = chal.data;
     ```
 
     </CodeGroup>
+
+    Response shape:
+
+    ```json
+    {
+      "success": true,
+      "data": {
+        "nonce":     "<48-hex-chars>",
+        "message":   "BlockForecast API Key\nAction: issue\nAddress: 0x...\nNonce: <nonce>\nTimestamp: 1777408738",
+        "expiresAt": "2026-04-28T20:43:58.000Z"
+      }
+    }
+    ```
+
+    The challenge expires in 5 minutes. The message format includes the action and your address so a signature for `issue` can't be replayed for `revoke` or `regenerate`.
   </Step>
 
-  <Step title="Sign the message">
-    Sign with your wallet. The signature must be an EIP-191 personal sign (`eth_personalSign`).
+  <Step title="Sign the exact message">
+    Use EIP-191 personal sign (`personal_sign`) with the wallet whose address you sent in step 1. Don't construct your own message — sign the one the server returned verbatim.
 
     <CodeGroup>
 
     ```python Python (web3.py)
-    from web3 import Web3
     from eth_account import Account
-
-    w3 = Web3()
-    private_key = "0xYOUR_PRIVATE_KEY"
-    account = Account.from_key(private_key)
-
-    signed = w3.eth.account.sign_message(
-        w3.eth.account.messages.encode_defunct(text=message),
-        private_key=private_key,
-    )
+    from eth_account.messages import encode_defunct
+    signed = Account.sign_message(encode_defunct(text=message), private_key=PRIVATE_KEY)
     signature = signed.signature.hex()
-    address = account.address
     ```
 
     ```typescript JavaScript / TypeScript (viem)
-    import { createWalletClient, http } from "viem";
     import { privateKeyToAccount } from "viem/accounts";
-    import { base } from "viem/chains";
+    const account   = privateKeyToAccount(PRIVATE_KEY as `0x${string}`);
+    const signature = await account.signMessage({ message });
+    ```
 
-    const account = privateKeyToAccount("0xYOUR_PRIVATE_KEY");
-    const client = createWalletClient({ account, chain: base, transport: http() });
-
-    const signature = await client.signMessage({ message });
-    const address = account.address;
+    ```typescript Browser (MetaMask / Privy)
+    const signature = await wallet.signMessage({ message });
+    // or via raw EIP-1193:
+    // const signature = await provider.request({
+    //   method: "personal_sign", params: [message, address],
+    // });
     ```
 
     </CodeGroup>
   </Step>
 
-  <Step title="Exchange for an API key">
-    POST the address, message, and signature to get your key.
+  <Step title="Exchange for a key">
+    `POST /api/v2/auth/token` with the address, signature, the message, the nonce, and an optional label.
 
     <CodeGroup>
 
@@ -84,67 +99,73 @@ To get a key you need an EVM-compatible wallet (MetaMask, Coinbase Wallet, a har
     curl -X POST https://blockforecast.io/api/v2/auth/token \
       -H "Content-Type: application/json" \
       -d "{
-        \"address\": \"$ADDRESS\",
-        \"message\": \"$MESSAGE\",
-        \"signature\": \"$SIGNATURE\"
+        \"address\":   \"$ADDRESS\",
+        \"message\":   \"$MESSAGE\",
+        \"signature\": \"$SIGNATURE\",
+        \"nonce\":     \"$NONCE\",
+        \"label\":     \"prod-bot\"
       }"
     ```
 
     ```python Python
-    import requests
-
     resp = requests.post(
-        "https://blockforecast.io/api/v2/auth/token",
-        json={
-            "address": address,
-            "message": message,
-            "signature": signature,
-        },
-    )
-    resp.raise_for_status()
-    api_key = resp.json()["apiKey"]
+      "https://blockforecast.io/api/v2/auth/token",
+      json={
+        "address": address, "message": message, "signature": signature,
+        "nonce":   nonce,   "label":   "prod-bot",
+      },
+    ).json()
+    api_key = resp["data"]["apiKey"]
     ```
 
     ```typescript JavaScript / TypeScript
     const resp = await fetch("https://blockforecast.io/api/v2/auth/token", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ address, message, signature }),
-    });
-
-    if (!resp.ok) throw new Error(`Auth failed: ${resp.status}`);
-    const { apiKey } = await resp.json();
+      body: JSON.stringify({ address, message, signature, nonce, label: "prod-bot" }),
+    }).then(r => r.json());
+    const apiKey = resp.data.apiKey;
     ```
 
     </CodeGroup>
 
-    The response:
+    Response (the only time the raw `apiKey` is shown):
 
     ```json
     {
-      "apiKey": "bf_live_xxxxxxxxxxxxxxxxxxxx"
+      "success": true,
+      "data": {
+        "id":        7,
+        "apiKey":    "bf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "prefix":    "bf_xxxxxxxx...",
+        "label":     "prod-bot",
+        "rateLimit": 60,
+        "createdAt": "2026-04-28T20:43:00.000Z",
+        "note":      "Store this key securely. It cannot be retrieved again."
+      }
     }
     ```
+
+    The server only stores the SHA-256 hash of the key. Even with a database leak, the raw key cannot be reconstructed.
   </Step>
 </Steps>
 
-## Use your API key
+## Use your key
 
-Pass your key in the `X-API-Key` header on every request.
+Pass it in the `X-API-Key` header on every request to a `/api/v2/public/*` endpoint.
 
 <CodeGroup>
 
 ```bash curl
 curl https://blockforecast.io/api/v2/public/markets \
-  -H "X-API-Key: bf_live_xxxxxxxxxxxxxxxxxxxx"
+  -H "X-API-Key: bf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 ```
 
 ```python Python
 import os, requests
-
 resp = requests.get(
-    "https://blockforecast.io/api/v2/public/markets",
-    headers={"X-API-Key": os.environ["BLOCKFORECAST_API_KEY"]},
+  "https://blockforecast.io/api/v2/public/markets",
+  headers={"X-API-Key": os.environ["BLOCKFORECAST_API_KEY"]},
 )
 ```
 
@@ -156,51 +177,85 @@ const resp = await fetch("https://blockforecast.io/api/v2/public/markets", {
 
 </CodeGroup>
 
-<Note>
-  The API also accepts `Authorization: Bearer <key>` as an alternative header if you prefer the standard Bearer scheme. Both formats are supported on all endpoints.
-</Note>
+## List your active keys
+
+Returns prefixes (not raw keys), labels, rate limit, scopes, created/last-used timestamps. No auth required — a key's prefix isn't a secret. Used by the [`/settings/api-keys`](https://blockforecast.io/settings/api-keys) page.
+
+```bash
+curl "https://blockforecast.io/api/v2/auth/keys?address=0xYourWalletAddress"
+```
 
 ## Revoke a key
 
-If your key is compromised, revoke it immediately:
+Suspected leak? Revoke instantly. The action is wallet-signed (same nonce flow with `action: "revoke"` and the key's `id`).
 
-```bash curl
-curl -X POST https://blockforecast.io/api/v2/auth/revoke \
-  -H "X-API-Key: bf_live_xxxxxxxxxxxxxxxxxxxx"
+```bash
+# 1. Challenge
+curl -X POST https://blockforecast.io/api/v2/auth/challenge \
+  -H "Content-Type: application/json" \
+  -d '{ "address": "0x...", "action": "revoke", "keyId": 7 }'
+
+# 2. Sign the returned message, then:
+curl -X POST https://blockforecast.io/api/v2/auth/keys/7/revoke \
+  -H "Content-Type: application/json" \
+  -d '{ "address": "0x...", "message": "...", "signature": "0x...", "nonce": "..." }'
 ```
 
 The key is invalidated synchronously — any request using it after this point returns `401`.
 
-## Error codes
+## Regenerate a key (atomic rotate)
 
-| HTTP status | Code | Meaning |
-|---|---|---|
-| `401 Unauthorized` | `MISSING_KEY` | No `X-API-Key` header was provided. |
-| `401 Unauthorized` | `INVALID_KEY` | The key is malformed, expired, or has been revoked. |
-| `401 Unauthorized` | `SIGNATURE_INVALID` | The wallet signature did not verify correctly during token issuance. |
-| `401 Unauthorized` | `MESSAGE_EXPIRED` | The timestamp in the signed message is more than 5 minutes old. |
-| `403 Forbidden` | `INSUFFICIENT_PERMISSIONS` | The key is valid but your wallet does not have the required role (e.g., creator access to `POST /markets`). |
+Same scopes + rate limit, new key value. Useful when you want to rotate without losing your "key slot" or having to update label references downstream.
 
-A `401` error body looks like this:
+```bash
+# 1. Challenge with action: "regenerate"
+curl -X POST https://blockforecast.io/api/v2/auth/challenge \
+  -H "Content-Type: application/json" \
+  -d '{ "address": "0x...", "action": "regenerate", "keyId": 7 }'
 
-```json
-{
-  "error": "INVALID_KEY",
-  "message": "The provided API key is invalid or has been revoked."
-}
+# 2. Sign + post — the server atomically revokes the old key and issues a new one
+curl -X POST https://blockforecast.io/api/v2/auth/keys/7/regenerate \
+  -H "Content-Type: application/json" \
+  -d '{ "address": "0x...", "message": "...", "signature": "0x...", "nonce": "..." }'
 ```
+
+The response shape matches `POST /auth/token` — the new key is shown once.
+
+## Caps
+
+- **5 active keys per wallet.** Revoke or regenerate to free a slot.
+- **Default 60 req/min per key.** Higher quotas on request — see [Rate Limits](/developers/rate-limits).
+- **Brute-force protection:** after 50 failed authentications from the same IP in one hour, that IP is throttled to 429.
+- **Constant-time auth lookup:** the server hashes and queries even on missing headers, so timing side-channels can't distinguish "no key" from "wrong key".
+
+## Error responses
+
+| HTTP | Body `error` field | Meaning |
+|---|---|---|
+| `400 Bad Request` | `address, signature, message, and nonce are required` | Missing required field on `/auth/token` etc. |
+| `400 Bad Request` | `Nonce invalid, expired, or already used. Request a fresh challenge.` | Replay attempt or stale nonce — restart from `/auth/challenge`. |
+| `400 Bad Request` | `Maximum 5 active API keys per wallet…` | Revoke or regenerate to free a slot. |
+| `401 Unauthorized` | `Invalid or missing API key.` | Header missing, malformed, or key has been revoked. |
+| `401 Unauthorized` | `Invalid signature` | Signature doesn't verify against the recovered address. |
+| `401 Unauthorized` | `Signature does not match address` | Recovered signer is a different wallet. |
+| `403 Forbidden` | `This API key lacks required scope: <scope>` | Key is valid but lacks permission for the endpoint. |
+| `404 Not Found` | `Key not found or not owned by this wallet` | Bad `keyId`, or the wallet you signed with doesn't own that key. |
+| `429 Too Many Requests` | `Rate limit exceeded. Max 60 requests per minute.` | Wait per the `Retry-After` header. |
+| `429 Too Many Requests` | `Too many failed authentication attempts. Try again later.` | IP-level brute-force throttle. |
+
+All success responses are `{ "success": true, "data": {...} }`; errors are `{ "success": false, "error": "<message>" }`.
 
 ## Security best practices
 
 <Warning>
-  Never expose your API key in client-side JavaScript, public repositories, or build logs. Keys are tied to your wallet address and grant access to trade and manage markets on your behalf.
+  Never expose `bf_…` keys in client-side JavaScript, public repos, or build logs. Anyone with the key can trade and read account data on behalf of the wallet that issued it.
 </Warning>
 
-- Store keys in environment variables or a secrets manager (AWS Secrets Manager, Doppler, 1Password) — never hard-code them.
-- Use one key per application so you can revoke a single key without affecting other integrations.
-- Rotate keys on a schedule or immediately after any suspected exposure.
-- For server-to-server integrations, scope the signing wallet to only hold the permissions your application needs (e.g., a dedicated creator wallet for market creation bots).
+- Store in your secrets manager (AWS Secrets Manager, Doppler, 1Password, env-file mounted at runtime). Never commit.
+- Use one key per environment (`prod-bot`, `staging-bot`, `local-dev`) — the label keeps you sane and revoke is single-key, not single-wallet.
+- Rotate via [`/keys/:id/regenerate`](#regenerate-a-key-atomic-rotate) on a schedule or after any suspected exposure. Old key dies the moment the new one is shown.
+- For server-to-server integrations, give each agent its own dedicated wallet so a leak doesn't expose your trading wallet's positions.
 
 <Tip>
-  If you need to authenticate from a serverless or CI environment where you cannot interactively sign, generate a key once from a local wallet and store the resulting `bf_live_...` key as a secret in your deployment platform.
+  In CI / serverless where you can't interactively sign, generate the key once from a local wallet (or via the `/settings/api-keys` UI) and inject the resulting `bf_…` value as a build secret. The key is what production uses; the signing wallet only needs to be online during issuance.
 </Tip>

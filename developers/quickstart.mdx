@@ -3,31 +3,66 @@ title: "Developer Quickstart: BlockForecast REST API"
 description: "Make your first BlockForecast API request in under five minutes. Get an API key, list active markets, and explore the full developer surface."
 ---
 
-The BlockForecast REST API gives you programmatic access to prediction markets — list and filter markets, stream trade data, place trades, and create your own markets with creator approval. The base URL for all v2 endpoints is `https://blockforecast.io/api/v2`. Authentication uses a short-lived API key that you obtain by signing a message with your wallet. This guide walks you through every step from zero to your first successful response.
+The BlockForecast REST API gives you programmatic access to prediction markets — list and filter markets, stream trade data, place trades, and create your own markets with creator approval. The base URL for all v2 endpoints is `https://blockforecast.io/api/v2`. Authentication uses a long-lived API key (`bf_<32 hex>`) that you obtain by signing a one-time challenge with your wallet. This guide walks you through every step from zero to your first successful response.
+
+<Tip>
+  **Building an AI agent that creates markets?** Skip the manual setup — install the [`/bf-create-market` Claude Code skill](/developers/claude-skill). One slash command wraps the full x402 + creator-fee flow.
+</Tip>
+
+<Tip>
+  **Just need a key?** Sign in at [blockforecast.io/settings/api-keys](https://blockforecast.io/settings/api-keys) and tap **Generate key** — Privy pops the wallet signature, the key is shown once. No curl needed for the happy path.
+</Tip>
 
 <Steps>
-  <Step title="Get an API key">
-    API keys are issued by signing a challenge message with your Ethereum wallet. You do not need to create an account — your wallet address is your identity.
+  <Step title="Get an API key (programmatic)">
+    Keys are issued in a two-step nonce-bound flow: request a challenge, sign the exact message it returns, post both back. No account required — your wallet address is your identity. Each nonce is single-use, so the same signature can't be replayed for any other action.
 
     ```bash curl
-    curl -X POST https://blockforecast.io/api/v2/auth/token \
+    # 1. Request a challenge
+    curl -X POST https://blockforecast.io/api/v2/auth/challenge \
       -H "Content-Type: application/json" \
       -d '{
         "address": "0xYourWalletAddress",
-        "message": "BlockForecast auth – 1745000000",
-        "signature": "0xYourSignedMessage"
+        "action":  "issue"
+      }'
+
+    # response → { "success": true, "data": {
+    #   "nonce":     "<48-hex-chars>",
+    #   "message":   "BlockForecast API Key\nAction: issue\nAddress: 0x...\nNonce: ...\nTimestamp: 1777408738",
+    #   "expiresAt": "2026-04-28T20:43:58.000Z"
+    # } }
+
+    # 2. Sign data.message with your wallet (any EVM tool: viem, ethers, MetaMask…)
+    # 3. Post the signature + nonce back
+    curl -X POST https://blockforecast.io/api/v2/auth/token \
+      -H "Content-Type: application/json" \
+      -d '{
+        "address":   "0xYourWalletAddress",
+        "message":   "<exact message from step 1>",
+        "signature": "0xYourSignedMessage",
+        "nonce":     "<nonce from step 1>",
+        "label":     "prod-bot"
       }'
     ```
 
-    The response contains your API key:
+    The response contains your API key (shown once):
 
     ```json
     {
-      "apiKey": "bf_live_xxxxxxxxxxxxxxxxxxxx"
+      "success": true,
+      "data": {
+        "id":        7,
+        "apiKey":    "bf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "prefix":    "bf_xxxxxxxx...",
+        "label":     "prod-bot",
+        "rateLimit": 60,
+        "createdAt": "2026-04-28T20:43:00.000Z",
+        "note":      "Store this key securely. It cannot be retrieved again."
+      }
     }
     ```
 
-    Store this key in an environment variable (`BLOCKFORECAST_API_KEY`) and never commit it to source control. See [Authentication](/developers/authentication) for the full signing flow and error reference.
+    Store the `apiKey` value as a secret in your deployment platform — the server only stores its SHA-256 hash, so a leaked DB doesn't leak keys, but the raw key cannot be re-fetched. See [Authentication](/developers/authentication) for the full signing flow, the regenerate/revoke endpoints, and error reference.
   </Step>
 
   <Step title="Make your first request">

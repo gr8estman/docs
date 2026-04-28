@@ -491,8 +491,11 @@ The following endpoints are available but covered separately in the authenticati
 
 | Method | Path | Description |
 |---|---|---|
-| `POST` | `/api/v2/auth/token` | Obtain an API key from a wallet signature. |
-| `POST` | `/api/v2/auth/revoke` | Revoke an API key. |
+| `POST` | `/api/v2/auth/challenge` | Issue a single-use nonce for a wallet-signed action (`issue` / `revoke` / `regenerate`). |
+| `POST` | `/api/v2/auth/token` | Exchange a wallet signature + nonce for a `bf_…` API key. |
+| `GET`  | `/api/v2/auth/keys?address=` | List active keys (prefixes only) for a wallet. |
+| `POST` | `/api/v2/auth/keys/:id/revoke` | Revoke a specific key by id. |
+| `POST` | `/api/v2/auth/keys/:id/regenerate` | Atomically rotate — old revoked, new issued. |
 | `GET` | `/api/v2/public/markets/:id/price` | Current LSMR price and price impact for a given quote size. |
 | `GET` | `/api/v2/public/markets/:id/history` | OHLC price history. |
 | `POST` | `/api/v2/public/markets/:id/trade` | Place a trade on a market. |

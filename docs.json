@@ -72,8 +72,13 @@
             "group": "x402 Agent API",
             "pages": [
               "developers/x402-overview",
-              "developers/x402-create-market",
-              "developers/untitled-page"
+              "developers/x402-create-market"
+            ]
+          },
+          {
+            "group": "Skills & SDKs",
+            "pages": [
+              "developers/claude-skill"
             ]
           }
         ]
