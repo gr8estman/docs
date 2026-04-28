@@ -4,14 +4,25 @@
   "theme": "luma",
   "favicon": "https://media.brand.dev/8670e709-55c2-4d2e-9790-e81c69f39b91.svg",
   "colors": {
-    "primary": "#04ddce",
-    "light": "#fafafa",
-    "dark": "#0c0c0c"
+    "primary": "#cf8a10",
+    "light":   "#f5b13c",
+    "dark":    "#a06a09"
   },
   "navbar": {
+    "links": [
+      { "label": "App",       "href": "https://blockforecast.io" },
+      { "label": "Markets",   "href": "https://blockforecast.io/markets" }
+    ],
     "primary": {
-      "type": "github",
-      "href": "https://github.com/gr8estman/blockforecast-v4"
+      "type":  "button",
+      "label": "Apply for creator access",
+      "href":  "https://blockforecast.io/apply"
+    }
+  },
+  "footer": {
+    "socials": {
+      "x":      "https://x.com/blockforecasthq",
+      "github": "https://github.com/gr8estman/blockforecast-skills"
     }
   },
   "navigation": {

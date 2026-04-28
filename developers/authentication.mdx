@@ -225,8 +225,7 @@ The response shape matches `POST /auth/token` — the new key is shown once.
 
 - **5 active keys per wallet.** Revoke or regenerate to free a slot.
 - **Default 60 req/min per key.** Higher quotas on request — see [Rate Limits](/developers/rate-limits).
-- **Brute-force protection:** after 50 failed authentications from the same IP in one hour, that IP is throttled to 429.
-- **Constant-time auth lookup:** the server hashes and queries even on missing headers, so timing side-channels can't distinguish "no key" from "wrong key".
+- Persistent failed-auth attempts from a single IP are throttled at the edge.
 
 ## Error responses
 
