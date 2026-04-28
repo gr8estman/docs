@@ -1,0 +1,103 @@
+---
+title: "Transparency: Public Metrics and Oracle Accountability"
+description: "All BlockForecast metrics are public — oracle accuracy, agent votes, trading volume, and the incident log. Learn what's visible and how to read it."
+---
+
+Trust in a prediction market depends entirely on trust in how it resolves. BlockForecast makes every metric that matters publicly readable — not because it's legally required, but because a platform that can't show its work shouldn't be asking you to stake money on it. You don't need an account to view the oracle dashboard, inspect agent votes, or check platform status. The data is live, unfiltered, and permanently logged.
+
+## What is public
+
+Every data point listed below is accessible without logging in.
+
+<CardGroup cols={2}>
+  <Card title="Oracle voting records" icon="check-to-slot">
+    Every agent's individual vote, confidence score, and cited sources for every resolved market. Searchable by market, category, date, and agent.
+  </Card>
+  <Card title="Agent calibration scores" icon="chart-line">
+    Each agent's running accuracy broken down by market category. You can see which agents the system trusts most for crypto prices versus sports versus news.
+  </Card>
+  <Card title="Trading volume" icon="chart-bar">
+    Cumulative and per-market trading volume in USDC. Updated in real time.
+  </Card>
+  <Card title="Market counts" icon="grid">
+    Total markets created, active markets, settled markets, and no-resolution markets — broken down by category and time period.
+  </Card>
+  <Card title="Resolution speed" icon="clock">
+    Median and p95 resolution time by category. Lets you verify that the "under 5 minutes" claim holds in practice.
+  </Card>
+  <Card title="Incident log" icon="triangle-exclamation">
+    Every platform incident, its impact on resolution or trading, and the post-incident write-up. Nothing is redacted.
+  </Card>
+</CardGroup>
+
+## How to read the oracle dashboard
+
+The oracle dashboard at [blockforecast.io/oracle](https://blockforecast.io/oracle) is organized into three views.
+
+<Steps>
+  <Step title="Live resolutions">
+    The default view shows markets currently in the `resolving` state. You can watch agent votes come in as they happen, see individual confidence scores update in real time, and observe whether the consensus threshold has been reached yet. This view refreshes automatically — no manual reload needed.
+  </Step>
+  <Step title="Resolution history">
+    The history view lets you search and filter all past resolutions. For each resolved market, you can expand the full record: which agents voted, what each agent cited, the consensus algorithm's weighted output, and whether a manual override was applied. If the adversarial appeals path ran, that record is shown separately so you can compare the two rounds.
+  </Step>
+  <Step title="Agent leaderboard">
+    The leaderboard ranks agents by calibration score within each category. You can drill into any agent to see its accuracy over time, the markets it was assigned to, and how its weight has changed as its track record has accumulated.
+  </Step>
+</Steps>
+
+<Tip>
+  Before trading on a market, you can look up the creator's previous markets in the resolution history and see how cleanly they resolved. Well-defined criteria from experienced creators tend to produce high-confidence, fast resolutions.
+</Tip>
+
+## Status page
+
+The status page at [blockforecast.io/status](https://blockforecast.io/status) shows the real-time health of the three systems that matter most.
+
+| System | What it tells you |
+|---|---|
+| **Resolution engine** | Whether the system that queues and processes market resolutions is operational |
+| **Oracle** | Whether AI agents are reachable and responding — including individual agent health |
+| **Trading API** | Whether the platform is accepting trades, deposits, and withdrawals |
+
+Incidents appear on the status page the moment they're detected, not after they're resolved. Each incident entry includes a description of the impact, affected markets (if any), and live updates as the team works through it. Post-incident write-ups are added once the incident is closed — these cover root cause, timeline, and what changed to prevent recurrence.
+
+<Note>
+  If a market is stuck in `resolving` state and you're not sure why, the status page is the first place to check. An active oracle incident will be listed there.
+</Note>
+
+## Why transparency matters for prediction markets
+
+Prediction markets are only useful if participants trust that outcomes are decided correctly. In a platform where resolution is opaque, you have no way to verify that the process followed the rules — you're trusting the platform's word. BlockForecast's approach is the opposite: the full resolution record is public by default, and you can verify every outcome independently against the same sources the agents used.
+
+<AccordionGroup>
+  <Accordion title="How does public oracle data prevent manipulation?">
+    When every agent vote is visible in real time, any attempt to manipulate outcomes would be immediately visible. Agents with no wallet and no economic stake can't be bribed the way token-weighted human voters can, and their voting record is logged permanently. There's no private back-channel through which a resolution can be quietly changed.
+  </Accordion>
+  <Accordion title="Can I verify a resolution myself?">
+    Yes. For any settled market, the oracle dashboard shows you exactly which sources each agent read and what conclusion the agent drew. You can go to those same sources and evaluate whether the agents read them correctly. If you find a discrepancy, you have 48 hours after settlement to file an appeal through the market detail page or by emailing [support@blockforecast.io](mailto:support@blockforecast.io).
+  </Accordion>
+  <Accordion title="Are manual overrides visible?">
+    Yes. Every manual override is logged on the oracle dashboard with the market it affected, the original AI consensus outcome, the override outcome, and a written rationale from the team. Manual overrides are never applied silently.
+  </Accordion>
+  <Accordion title="How long is resolution history retained?">
+    Resolution history, agent votes, and calibration data are retained indefinitely. You can inspect the record for any market ever settled on the platform.
+  </Accordion>
+</AccordionGroup>
+
+## Explore the live data
+
+<CardGroup cols={2}>
+  <Card title="Oracle dashboard" icon="chart-line" href="https://blockforecast.io/oracle">
+    Live agent votes, calibration scores, and full resolution history.
+  </Card>
+  <Card title="Platform status" icon="signal" href="https://blockforecast.io/status">
+    Real-time uptime for the resolution engine, oracle, and trading API — plus the incident log.
+  </Card>
+  <Card title="Transparency overview" icon="eye" href="https://blockforecast.io/transparency">
+    Aggregate platform metrics: volume, market counts, and resolution stats.
+  </Card>
+  <Card title="Resolution policy" icon="file-lines" href="/how-it-works/resolution-policy">
+    The full rules that govern how every market settles.
+  </Card>
+</CardGroup>

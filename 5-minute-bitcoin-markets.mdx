@@ -1,0 +1,138 @@
+---
+title: "5-Minute Bitcoin Prediction Markets on BlockForecast"
+description: "Trade BTC, ETH, and SOL up-or-down on rolling 5- and 15-minute markets. Pyth-oracle resolved, USDC on Base, always-on — the fastest crypto prediction product."
+---
+
+BlockForecast's 5-minute markets are the fastest prediction product on the platform — and, as of 2026, the fastest publicly tradeable crypto prediction markets anywhere. Polymarket's shortest crypto markets are weekly. Kalshi has hourly Bitcoin contracts. BlockForecast has 5-minute. The premise is simple: at the start of each round, the current spot price is captured as the anchor; at the end, the market resolves UP if the spot price is at or above that anchor, and DOWN if it's below. Markets are rolling and always-on — when one round closes, the next is already open.
+
+## How a round works
+
+<Steps>
+  <Step title="Round opens — anchor price is set">
+    At the start of each round, the live spot price for BTC, ETH, or SOL is captured from the **Pyth Hermes price feed** on Base. This becomes the "price to beat" — the anchor for the round.
+  </Step>
+  <Step title="Trading window opens">
+    You can buy UP or DOWN shares at the current market price. For 5-minute rounds, the trading window runs for **4 minutes 30 seconds**. For 15-minute rounds, it runs for **14 minutes**.
+  </Step>
+  <Step title="Halt window">
+    Trading freezes **30 seconds before resolution** on 5-minute rounds (60 seconds for 15-minute rounds). This halt window prevents last-second exploitation where a trader can see the outcome is clearly locked in and dump size into stale quotes.
+  </Step>
+  <Step title="Resolution — Pyth snapshot">
+    At the resolution moment, the Pyth Hermes feed delivers the canonical spot price. **UP wins if spot ≥ anchor; DOWN wins if spot < anchor.** Winning shares pay $1 each.
+  </Step>
+  <Step title="Next round is already live">
+    Rounds are pre-created so there's never a gap. As one round resolves, the next is already open and accepting trades.
+  </Step>
+</Steps>
+
+## Available markets
+
+<CardGroup cols={2}>
+  <Card title="BTC 5-minute" icon="bitcoin">
+    Rolling, always-on. Anchor set from Pyth Hermes BTC/USD feed.
+  </Card>
+  <Card title="BTC 15-minute" icon="bitcoin">
+    Rolling, always-on. Longer window for slightly less noisy price action.
+  </Card>
+  <Card title="ETH 5-minute" icon="ethereum">
+    Rolling, always-on. ETH/USD from Pyth Hermes.
+  </Card>
+  <Card title="ETH 15-minute" icon="ethereum">
+    Rolling, always-on.
+  </Card>
+  <Card title="SOL 5-minute" icon="sun">
+    Rolling, always-on. SOL/USD from Pyth Hermes.
+  </Card>
+  <Card title="SOL 15-minute" icon="sun">
+    Rolling, always-on.
+  </Card>
+</CardGroup>
+
+Additional assets are available on request — Pyth covers 50+ crypto assets.
+
+## Why 5-minute markets are interesting
+
+**Tight feedback loop.** Traditional prediction markets run for days, weeks, or months. You wait a long time to find out whether your forecast was right. On 5-minute markets, you know within minutes. This makes the product useful for skill-building: you get dozens of data points per day rather than a handful per month.
+
+**Pure price-action trading.** You don't need a long-term thesis on Bitcoin's value. The question is narrower: which way is BTC moving in the next five minutes? This suits technical traders, momentum traders, and anyone who watches charts closely.
+
+**Always-on.** Crypto trades 24 hours a day, seven days a week. So do these markets. There's no waiting for a market to open.
+
+**Differentiated product.** You can't trade 5-minute crypto markets on Polymarket or Kalshi. BlockForecast is the only platform currently offering sub-hourly rolling Bitcoin prediction markets at this level of accessibility.
+
+## Reading the chart
+
+The market page shows a live spot price chart sourced from the Pyth feed. A **horizontal line** marks the anchor price for the current round. A **pulsing dot** tracks the current spot price at the rightmost edge of the chart.
+
+The dot and chart color update in real time:
+- **Green** — current spot is above the anchor (UP is currently winning)
+- **Red** — current spot is below the anchor (DOWN is currently winning)
+
+The color flips instantly as the price crosses the anchor. The chart is informational — it does not predict where the price will be at resolution.
+
+## Trade protections
+
+Short-duration markets attract a specific kind of risk: a well-capitalized trader who can observe the spot price ticking clearly toward resolution can dump large size into the market seconds before close, exploiting stale market-maker quotes. BlockForecast layers four defenses against this:
+
+<AccordionGroup>
+  <Accordion title="Halt window">
+    The order book closes 30 seconds before resolution on 5-minute rounds, and 60 seconds before resolution on 15-minute rounds. No trades are accepted during this window.
+  </Accordion>
+  <Accordion title="Time-decaying impact cap">
+    The maximum price impact per trade tightens as resolution approaches: 10% → 7% → 4% → 2.5%. Large orders placed close to resolution receive a worse fill rather than moving the price significantly.
+  </Accordion>
+  <Accordion title="Position cap">
+    Per-wallet USDC exposure on a single round steps down as the round nears resolution: $50,000 → $20,000 → $5,000 → $1,000. This prevents late-stage position-building by well-capitalized accounts.
+  </Accordion>
+  <Accordion title="Quote auto-clamp">
+    If your order size exceeds available depth, the system returns a smaller fitting quote rather than failing the order outright. You get a partial fill at the available price rather than an error.
+  </Accordion>
+</AccordionGroup>
+
+## Fees
+
+The standard creator fee is **0.5%** per trade, plus a small protocol fee. As a round approaches resolution, the effective fee can increase up to **5%** during the final seconds to deter informed flow. This ramp is applied only in the window immediately before the halt.
+
+## How to place a trade
+
+<Steps>
+  <Step title="Deposit USDC">
+    You need USDC on Base. Use the in-app bridge to convert any crypto in one click. See [How to Deposit](/how-to-deposit). Minimum trade is $1 USDC.
+  </Step>
+  <Step title="Go to the 5-minute markets">
+    Navigate to [Markets](https://blockforecast.io/markets?category=binary) and filter by the binary category, or search for BTC, ETH, or SOL.
+  </Step>
+  <Step title="Read the current round">
+    Check the anchor price (horizontal line on the chart), the current spot price, and the time remaining. Current YES and NO share prices reflect the crowd's directional lean.
+  </Step>
+  <Step title="Buy UP or DOWN">
+    Click **UP** if you believe the price will be at or above the anchor at resolution. Click **DOWN** if you believe it will be below. Enter your USDC amount and confirm.
+  </Step>
+  <Step title="Watch the resolution">
+    The round resolves at the snapshot moment. Winning shares pay $1 each, automatically credited to your wallet. The next round is already open.
+  </Step>
+</Steps>
+
+<Warning>
+  5-minute markets are short-duration and highly volatile. A price that looks clearly directional 3 minutes before resolution can reverse in seconds. The market will not always move the way the chart suggests it's heading. Only trade size you're prepared to lose entirely on a given round. The time-decaying position caps are there for a reason — use the early part of the trading window when price impact and exposure limits are most favorable.
+</Warning>
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="What's the resolution source?">
+    The Pyth Hermes price feed on Base. The canonical price is the Pyth snapshot at the exact resolution moment.
+  </Accordion>
+  <Accordion title="What if the Pyth feed is unavailable?">
+    A fallback chain kicks in: Pyth → CoinGecko → Coinbase API. If all three sources are unavailable, the round is voided and all traders are refunded in full.
+  </Accordion>
+  <Accordion title="Can I place a limit order?">
+    Yes — the CLOB (central limit order book) phase of trading accepts resting limit orders that fill against incoming market orders.
+  </Accordion>
+  <Accordion title="Why does the timer sometimes show more than 5 minutes?">
+    Rounds are pre-created so there's no gap between them. Before the next round opens, the timer shows "Starts in MM:SS". Once the round is live, it flips to a countdown to the halt time.
+  </Accordion>
+  <Accordion title="What's the minimum trade?">
+    $1 USDC.
+  </Accordion>
+</AccordionGroup>

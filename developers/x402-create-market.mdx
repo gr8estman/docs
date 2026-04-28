@@ -1,0 +1,402 @@
+---
+title: "Create a Prediction Market via the x402 Agent API"
+description: "Create BlockForecast markets from an AI agent: set up a Base wallet, fund with USDC, get creator approval, then POST /x402/markets for $1 USDC per market."
+---
+
+This guide walks you through the complete end-to-end flow for creating a BlockForecast prediction market from an autonomous agent using the x402 payment protocol. When you finish, your agent will hold a Base L2 wallet, pay $1 USDC to create a market with a single HTTP call, and begin earning 0.5% of every trade on that market in real time. The implementation language is TypeScript, but the flow maps directly to any language with an EIP-3009 signing library.
+
+<Warning>
+  `POST /api/v2/x402/markets` only succeeds if the paying wallet has approved creator status. The $1 payment is **non-refundable by design** — apply for creator access in Step 3 before calling the endpoint. If your wallet is not approved, you receive `403 Forbidden` and the payment is not returned.
+</Warning>
+
+## Prerequisites
+
+- Node.js 18+ with TypeScript support
+- An Ethereum wallet (or you will generate one in Step 1)
+- USDC on Base mainnet (~$5 to cover gas and several market creations)
+
+Install the required packages:
+
+```bash
+npm install viem x402-fetch
+```
+
+---
+
+## Step 1: Set up a Base L2 wallet
+
+Your agent needs a dedicated EVM wallet whose private key it can access at runtime for signing. You can generate a fresh wallet programmatically:
+
+```typescript
+import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
+
+// Generate a new private key — do this once and save the result
+const privateKey = generatePrivateKey();
+const account = privateKeyToAccount(privateKey);
+
+console.log("Agent address:", account.address);
+console.log("Private key (save this securely!):", privateKey);
+```
+
+<Warning>
+  Store the private key in a secrets manager — AWS Secrets Manager, Doppler, 1Password, or a `.env` file that is never committed to source control. Anyone with access to this key can spend the wallet's funds.
+</Warning>
+
+If you already have a wallet (MetaMask, Coinbase Wallet), you can export the private key from Settings and use it directly. For production agents, a dedicated wallet that is separate from any browser wallet is strongly recommended.
+
+Load the key from your environment at runtime:
+
+```typescript
+import { privateKeyToAccount } from "viem/accounts";
+
+const account = privateKeyToAccount(
+  process.env.AGENT_PRIVATE_KEY as `0x${string}`
+);
+console.log("Agent address:", account.address);
+```
+
+---
+
+## Step 2: Fund the wallet with USDC on Base
+
+The x402 endpoints use USDC on Base mainnet (CAIP-2 identifier: `eip155:8453`). Your wallet needs:
+
+- **$1.00 USDC minimum** per market creation call
+- **A small amount of ETH on Base** for gas (typically $0.01–$0.05 per transaction)
+- A buffer for other x402 endpoints if you plan to use them (`feed`, `oracle/resolve`)
+
+**Option A — Bridge from Ethereum mainnet:**
+
+Use the [official Base bridge](https://bridge.base.org). Connect your agent wallet (or a funding wallet), select USDC, and bridge to Base. Bridging takes ~1 minute.
+
+**Option B — Send directly from Coinbase:**
+
+In Coinbase, select "Send" → choose USDC → select "Base" as the network → enter the agent address. Funds arrive in seconds.
+
+**Option C — Programmatic funding (for CI/testing):**
+
+```typescript
+import { createWalletClient, http, parseUnits } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { base } from "viem/chains";
+
+// USDC contract on Base mainnet
+const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+const USDC_ABI = [
+  {
+    name: "transfer",
+    type: "function",
+    inputs: [
+      { name: "to", type: "address" },
+      { name: "amount", type: "uint256" },
+    ],
+    outputs: [{ name: "", type: "bool" }],
+  },
+] as const;
+
+const fundingAccount = privateKeyToAccount(
+  process.env.FUNDING_PRIVATE_KEY as `0x${string}`
+);
+const client = createWalletClient({
+  account: fundingAccount,
+  chain: base,
+  transport: http(),
+});
+
+const txHash = await client.writeContract({
+  address: USDC_ADDRESS,
+  abi: USDC_ABI,
+  functionName: "transfer",
+  args: [
+    account.address,         // agent address
+    parseUnits("5", 6),      // 5 USDC (6 decimals)
+  ],
+});
+
+console.log("Funded agent wallet. Tx:", txHash);
+```
+
+Verify the balance before proceeding:
+
+```typescript
+import { createPublicClient, http, formatUnits } from "viem";
+import { base } from "viem/chains";
+
+const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+const ERC20_ABI = [
+  {
+    name: "balanceOf",
+    type: "function",
+    inputs: [{ name: "account", type: "address" }],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+] as const;
+
+const publicClient = createPublicClient({ chain: base, transport: http() });
+const balance = await publicClient.readContract({
+  address: USDC_ADDRESS,
+  abi: ERC20_ABI,
+  functionName: "balanceOf",
+  args: [account.address],
+});
+
+console.log("USDC balance:", formatUnits(balance, 6), "USDC");
+```
+
+---
+
+## Step 3: Apply for creator access
+
+Creator approval is a one-time, per-wallet step. Without it, `POST /x402/markets` returns `403` after charging you $1 — apply first.
+
+1. Visit [blockforecast.io/apply](/creators/apply).
+2. Click **Connect wallet** and choose **External wallet**.
+3. Connect using the agent wallet's address (use WalletConnect with any wallet holding the key, or paste the address and sign manually).
+4. Complete the application form — describe your use case and confirm the wallet address.
+5. You will hear back within 24 hours. Creator approval covers the web UI, `POST /public/markets`, and `POST /x402/markets` from the same wallet.
+
+<Note>
+  You only do this once per agent wallet. After approval, the wallet can create markets indefinitely across all BlockForecast surfaces.
+</Note>
+
+To check approval status programmatically before calling the endpoint:
+
+```bash
+curl "https://blockforecast.io/api/v2/x402/info" | jq '.creatorStatus'
+# Returns the payment requirements object if not paid,
+# or query your wallet's creator status via the public API
+```
+
+---
+
+## Step 4: POST /x402/markets
+
+With a funded, approved wallet, you are ready to create a market. The `x402-fetch` library handles the entire 402 round-trip for you — it sends the initial request, parses the payment requirements, constructs and signs the EIP-3009 `transferWithAuthorization`, and retries with the `X-PAYMENT` header automatically.
+
+### Full working example
+
+```typescript
+import { wrapFetchWithPayment } from "x402-fetch";
+import { privateKeyToAccount } from "viem/accounts";
+
+// Load account from environment
+const account = privateKeyToAccount(
+  process.env.AGENT_PRIVATE_KEY as `0x${string}`
+);
+
+// Wrap fetch with automatic x402 payment handling
+const fetchPaid = wrapFetchWithPayment(fetch, account);
+
+async function createMarket(params: {
+  question: string;
+  category: string;
+  resolveDate: string;
+  description?: string;
+  resolutionCriteria?: string;
+}) {
+  const resp = await fetchPaid(
+    "https://blockforecast.io/api/v2/x402/markets",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(params),
+    }
+  );
+
+  if (!resp.ok) {
+    const error = await resp.json().catch(() => ({ message: resp.statusText }));
+    throw new Error(`Market creation failed (${resp.status}): ${error.message}`);
+  }
+
+  return resp.json();
+}
+
+// Create a market
+const market = await createMarket({
+  question: "Will BTC close above $150k on Dec 31, 2026?",
+  category: "crypto",
+  resolveDate: "2026-12-31T23:59:59Z",
+  description: "Based on the Coinbase Pro BTC/USD closing price.",
+  resolutionCriteria:
+    "Resolves YES if BTC/USD closes above $150,000 on Coinbase Pro on Dec 31, 2026. Resolves NO otherwise.",
+});
+
+console.log("Market created!");
+console.log("ID:", market.id);
+console.log("URL:", `https://blockforecast.io/market/${market.slug}`);
+console.log("Creator earnings flow to:", account.address);
+```
+
+### What x402-fetch does under the hood
+
+If you prefer to implement the protocol directly (for a different language or a custom client), here is the manual flow:
+
+```typescript
+import { createWalletClient, http, parseUnits } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { base } from "viem/chains";
+
+const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+const account = privateKeyToAccount(process.env.AGENT_PRIVATE_KEY as `0x${string}`);
+const walletClient = createWalletClient({ account, chain: base, transport: http() });
+
+const requestBody = {
+  question: "Will BTC close above $150k on Dec 31, 2026?",
+  category: "crypto",
+  resolveDate: "2026-12-31T23:59:59Z",
+};
+
+// Step 1: Send request without payment — expect 402
+const probe = await fetch("https://blockforecast.io/api/v2/x402/markets", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(requestBody),
+});
+
+if (probe.status !== 402) throw new Error(`Expected 402, got ${probe.status}`);
+
+const paymentReqs = await probe.json();
+// paymentReqs: { amount: "1000000", currency: "USDC", network: "eip155:8453", payTo: "0x...", nonce: "..." }
+
+// Step 2: Sign a USDC transferWithAuthorization
+const deadline = BigInt(Math.floor(Date.now() / 1000) + 300); // 5-min expiry
+const nonce = paymentReqs.nonce;
+
+const signature = await walletClient.signTypedData({
+  domain: {
+    name: "USD Coin",
+    version: "2",
+    chainId: 8453,
+    verifyingContract: USDC_ADDRESS,
+  },
+  types: {
+    TransferWithAuthorization: [
+      { name: "from", type: "address" },
+      { name: "to", type: "address" },
+      { name: "value", type: "uint256" },
+      { name: "validAfter", type: "uint256" },
+      { name: "validBefore", type: "uint256" },
+      { name: "nonce", type: "bytes32" },
+    ],
+  },
+  primaryType: "TransferWithAuthorization",
+  message: {
+    from: account.address,
+    to: paymentReqs.payTo,
+    value: BigInt(paymentReqs.amount),
+    validAfter: BigInt(0),
+    validBefore: deadline,
+    nonce: nonce,
+  },
+});
+
+// Step 3: Encode payment payload and retry
+const paymentPayload = Buffer.from(
+  JSON.stringify({
+    from: account.address,
+    to: paymentReqs.payTo,
+    value: paymentReqs.amount,
+    validAfter: "0",
+    validBefore: String(deadline),
+    nonce: nonce,
+    signature: signature,
+    network: paymentReqs.network,
+    currency: paymentReqs.currency,
+  })
+).toString("base64");
+
+const result = await fetch("https://blockforecast.io/api/v2/x402/markets", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "X-PAYMENT": paymentPayload,
+  },
+  body: JSON.stringify(requestBody),
+});
+
+if (!result.ok) throw new Error(`Failed: ${result.status}`);
+const market = await result.json();
+console.log("Market created:", market.id);
+```
+
+---
+
+## Response: the created market object
+
+A successful `201 Created` response returns the new market:
+
+```json
+{
+  "id": "mkt_01hx9z3kqb8v2wyn4rfpje5d7t",
+  "slug": "btc-above-150k-dec-2026",
+  "question": "Will BTC close above $150k on Dec 31, 2026?",
+  "category": "crypto",
+  "status": "active",
+  "yesPrice": 0.50,
+  "noPrice": 0.50,
+  "volume": 0,
+  "liquidity": 0,
+  "resolveDate": "2026-12-31T23:59:59Z",
+  "createdAt": "2026-04-28T09:14:22Z",
+  "creator": {
+    "address": "0xYourAgentAddress",
+    "displayName": null
+  },
+  "resolutionCriteria": "Resolves YES if BTC/USD closes above $150,000 on Coinbase Pro on Dec 31, 2026.",
+  "resolution": null
+}
+```
+
+The market is immediately live and tradeable at `https://blockforecast.io/market/{slug}`. Creator fee earnings (0.5% of every trade) flow to `account.address` in real time.
+
+---
+
+## Error handling
+
+| HTTP status | Condition | What to do |
+|---|---|---|
+| `402 Payment Required` | Initial response — no payment sent | Expected behavior. Client must sign and retry. |
+| `402 Payment Required` (retry) | Payment was invalid or nonce was reused | Construct a fresh payment authorization with a new nonce and retry. |
+| `403 Forbidden` | Paying wallet does not have creator approval | [Apply for creator access](/creators/apply) before calling this endpoint. Payment is not refunded. |
+| `400 Bad Request` | Request body failed validation | Check the `errors` array in the response body for field-level details. |
+| `402` with `INSUFFICIENT_FUNDS` | Wallet USDC balance too low | Fund the wallet with more USDC on Base mainnet. |
+| `503 Service Unavailable` | CDP facilitator temporarily unreachable | Retry with exponential backoff. The payment was not settled. |
+
+Full error handling example:
+
+```typescript
+async function createMarketSafe(params: object): Promise<object | null> {
+  try {
+    const market = await createMarket(params as any);
+    return market;
+  } catch (err: any) {
+    const msg: string = err.message ?? "";
+
+    if (msg.includes("403")) {
+      console.error("Creator approval required. Visit https://blockforecast.io/apply");
+      return null;
+    }
+    if (msg.includes("INSUFFICIENT_FUNDS")) {
+      console.error("Not enough USDC. Fund the agent wallet with at least $1 on Base.");
+      return null;
+    }
+    if (msg.includes("400")) {
+      console.error("Bad request — check market params:", err);
+      return null;
+    }
+    if (msg.includes("503")) {
+      // Retry once after 5 seconds
+      console.warn("Payment facilitator unavailable. Retrying in 5s...");
+      await new Promise((r) => setTimeout(r, 5000));
+      return createMarketSafe(params);
+    }
+
+    throw err; // Re-throw unexpected errors
+  }
+}
+```
+
+<Note>
+  To monitor your agent's market performance and creator earnings, use `GET /api/v2/public/balance` (with your standard API key) or query the on-chain USDC balance of the agent address directly via any Base L2 RPC.
+</Note>

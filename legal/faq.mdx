@@ -1,0 +1,113 @@
+---
+title: "BlockForecast FAQ: Deposits, Markets, Creators, and API"
+description: "Answers to the most common questions about depositing, trading, creating markets, AI oracle resolution, and legal access on BlockForecast."
+---
+
+BlockForecast brings together traders, market creators, and developers on a single permissionless prediction market platform built on Base L2. If you're new or running into something unexpected, the answers below cover the most common questions about accounts, deposits, markets, creator fees, on-chain mechanics, and legal access. If you don't find what you need here, email [support@blockforecast.io](mailto:support@blockforecast.io).
+
+## Account & trading
+
+<AccordionGroup>
+  <Accordion title="How do I deposit funds?">
+    BlockForecast uses USDC on Base as its trading currency. You have two main paths:
+
+    - **In-app bridge** — connect your wallet and convert any supported crypto to USDC on Base directly inside the platform. This works from any country.
+    - **CEX transfer** — withdraw USDC from a centralized exchange (e.g. Binance, Coinbase) to your Base wallet address. Users in Nigeria, Ghana, and Kenya can follow dedicated CEX deposit guides at [/how-to-deposit](/how-to-deposit) that cover local exchange options.
+
+    Once USDC lands in your wallet, it's immediately available to trade.
+  </Accordion>
+
+  <Accordion title="What currency does BlockForecast use?">
+    All markets on BlockForecast are denominated in **USDC on Base L2**. You cannot trade with ETH, BTC, or other tokens directly — the in-app bridge handles conversion automatically if you're starting from a different asset.
+  </Accordion>
+
+  <Accordion title="What is the minimum trade size?">
+    The minimum trade size is **$0.01 USDC**. There is no maximum enforced by the platform, though individual markets may have liquidity limits that affect large positions. Gas fees on Base L2 are low enough that small trades are economically practical.
+  </Accordion>
+
+  <Accordion title="What wallet do I need?">
+    Any EVM-compatible wallet that supports Base L2 works — MetaMask, Coinbase Wallet, and Rabby are the most commonly used. Make sure you've added the Base network to your wallet before connecting. If you're using MetaMask, you can add Base automatically from the platform's deposit flow.
+  </Accordion>
+
+  <Accordion title="Do I need to complete KYC?">
+    BlockForecast does not require KYC at v1. You connect your wallet and trade immediately. KYC may be introduced for specific markets or jurisdictions if regulation requires it — any changes will be communicated in advance.
+  </Accordion>
+</AccordionGroup>
+
+## Markets
+
+<AccordionGroup>
+  <Accordion title="How are markets resolved?">
+    BlockForecast uses a **multi-agent AI oracle** to resolve markets. When a market's end time passes, a set of AI agents independently evaluate the outcome against public, verifiable sources. They vote, compare reasoning, and converge on a result through a consensus mechanism. No human manually adjudicates outcomes by default.
+
+    You can monitor live agent voting and accuracy statistics on the [Oracle Dashboard](/how-it-works/ai-oracle).
+  </Accordion>
+
+  <Accordion title="What if I think a market was resolved incorrectly?">
+    If you believe a market resolved incorrectly, you can open a dispute through the resolution policy process. The [Resolution Policy](/how-it-works/resolution-policy) page explains the source whitelist, the dispute path, and the conditions under which a manual override is triggered. Email [support@blockforecast.io](mailto:support@blockforecast.io) with the market ID and your reasoning if you want to escalate directly.
+  </Accordion>
+
+  <Accordion title="How long do markets run?">
+    Market duration is set by the creator when the market is listed — it can range from **5 minutes** (for fast crypto price markets) to weeks or months for longer-range event markets. The market's end time and resolution date are always displayed on the market page before you trade.
+  </Accordion>
+
+  <Accordion title="Can I trade after a market closes?">
+    No. Once a market reaches its end time, trading halts and the oracle resolution process begins. Open positions are settled at the resolution price once the outcome is confirmed.
+  </Accordion>
+</AccordionGroup>
+
+## Creator program
+
+<AccordionGroup>
+  <Accordion title="How do I become a creator?">
+    Submit an application at [blockforecast.io/apply](https://blockforecast.io/apply). Applications are reviewed within 24 hours. The team looks at your proposed market topics, audience, and whether your markets meet the platform's quality criteria. See [Creator Program Criteria](/creators/apply) for what gets approved.
+  </Accordion>
+
+  <Accordion title="How do creators earn fees?">
+    Approved creators earn **0.5% of every trade** placed on any market they create. This fee is collected on both the buy and sell side of each trade, and it accrues in real time as trades happen. There is no cap on earnings — fees scale with the trading volume your markets generate.
+  </Accordion>
+
+  <Accordion title="When do creators get paid?">
+    Creator fee payouts are processed in **real time to your connected wallet** in USDC. There's no minimum payout threshold or monthly settlement cycle. Because everything runs on-chain on Base L2, the fee transfer happens automatically when a trade settles.
+  </Accordion>
+
+  <Accordion title="What types of markets can creators list?">
+    Creators can list markets on a wide range of topics: crypto prices, sports outcomes, macroeconomic events, geopolitical developments, and more. Markets must resolve against a verifiable public source. BlockForecast does not list US-political markets at launch to avoid specific regulatory gray areas. See [How to Create a Prediction Market](/creators/create-a-market) for topic guidance and requirements.
+  </Accordion>
+</AccordionGroup>
+
+## Technical
+
+<AccordionGroup>
+  <Accordion title="Is BlockForecast on-chain?">
+    Yes. BlockForecast runs on **Base L2**, an Ethereum Layer 2 network built by Coinbase. Market positions, settlements, and creator fee payouts are all executed via smart contracts on-chain. The source of truth for balances and settlements is the Base L2 ledger.
+  </Accordion>
+
+  <Accordion title="What blockchain does BlockForecast use?">
+    **Base L2** — an EVM-compatible Layer 2 chain built on the OP Stack by Coinbase. Base offers low transaction fees and fast finality, which makes small trades and short-duration markets (like 5-minute Bitcoin markets) economically viable. You do not need to bridge to Ethereum mainnet.
+  </Accordion>
+
+  <Accordion title="Is there a public API?">
+    Yes. BlockForecast offers a public REST API with API key authentication and a default rate limit of 60 requests per minute. Developers can list markets, fetch trade data, and create markets programmatically. See the [API Quickstart](/developers/quickstart) and [Public API Reference](/developers/public-api) for details.
+  </Accordion>
+</AccordionGroup>
+
+## Legal & access
+
+<AccordionGroup>
+  <Accordion title="Is BlockForecast legal in my country?">
+    Prediction markets occupy a different legal category from gambling in most jurisdictions, but the classification varies. BlockForecast operates as a decentralized prediction market on Base L2 — it is not a licensed exchange in any individual country. The platform applies geo-restrictions to jurisdictions where operating would be legally problematic. See [Are Prediction Markets Legal?](/legal/are-prediction-markets-legal) for a country-by-country overview, and check the [Terms of Service](https://blockforecast.io/terms) for the current restricted-country list.
+  </Accordion>
+
+  <Accordion title="Which countries are restricted?">
+    The authoritative and up-to-date list of restricted jurisdictions is in the [Terms of Service](https://blockforecast.io/terms). BlockForecast may add or remove countries as the regulatory environment changes. If you're unsure whether your country is restricted, review the Terms before trading.
+
+    <Warning>
+      If you are located in a restricted jurisdiction, you must not use the platform. Using a VPN to bypass geo-restrictions violates the Terms of Service and may result in account termination and forfeiture of funds.
+    </Warning>
+  </Accordion>
+
+  <Accordion title="How do I contact support?">
+    Email [support@blockforecast.io](mailto:support@blockforecast.io). Include your wallet address and a description of the issue. For market resolution disputes, include the market ID. The team aims to respond within one business day.
+  </Accordion>
+</AccordionGroup>

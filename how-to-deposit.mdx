@@ -1,0 +1,151 @@
+---
+title: "How to Deposit USDC on BlockForecast"
+description: "Fund your BlockForecast account via the in-app bridge from any crypto, or withdraw USDC from Binance, OKX, Bybit, and other CEXs that support Base L2."
+---
+
+BlockForecast settles in USDC on Base L2. To start trading, you need USDC on Base in your wallet. If that sounds like a lot of steps, it isn't — the in-app bridge accepts any crypto on any chain (ETH, SOL, USDT, BTC via WBTC, anything) and auto-converts to USDC on Base in a single transaction. You never need a Coinbase account, and the bridge works in every country including Nigeria, Ghana, and Kenya. Below are three paths to fund your account, ordered from easiest to most manual.
+
+<Note>
+  BlockForecast uses **native USDC on Base** — not USDC.e (bridged USDC) or USDC on Ethereum mainnet. The in-app bridge always delivers native USDC, so you don't need to worry about this when using Path 1. If you arrive at the platform with bridged USDC, swap to native via Uniswap on Base before trading.
+</Note>
+
+## Choose your path
+
+<Tabs>
+  <Tab title="Path 1 — In-app bridge (recommended)">
+    The in-app bridge uses the **LI.FI** routing protocol to accept any crypto on any chain and automatically swap and bridge to USDC on Base. One transaction signature — no separate bridge step required. Works in every country.
+
+    <Steps>
+      <Step title="Sign in to BlockForecast">
+        Go to [blockforecast.io](https://blockforecast.io) and sign in with Google, Apple, email, or your Web3 wallet. If you use Google, Apple, or email, BlockForecast automatically creates an embedded wallet for you via Privy — no seed phrase or browser extension required.
+      </Step>
+      <Step title="Open your account">
+        Click **Account** in the top navigation.
+      </Step>
+      <Step title="Find the Deposit section">
+        Scroll to the **Deposit** section. The bridge widget is embedded directly in the page.
+      </Step>
+      <Step title="Choose your source asset and chain">
+        Select the network you're bridging from — Ethereum, Polygon, Arbitrum, Optimism, BNB Chain, Solana, and others are all supported. Then pick the token you want to send: ETH, SOL, USDT, USDC on another chain, MATIC, ARB, BTC (as WBTC), and more.
+      </Step>
+      <Step title="Enter the amount">
+        Type in how much you want to deposit. The widget shows the estimated USDC on Base you'll receive after swap and bridge fees (typically 0.1–0.4% of the amount, plus source-chain gas).
+
+        <Tip>
+          Path 1 has a minimum of around $5 USD equivalent due to swap-route economics. For smaller amounts, use a CEX withdrawal via Path 2.
+        </Tip>
+      </Step>
+      <Step title="Connect your source wallet and approve">
+        Connect the wallet holding your source crypto and approve the transaction. The bridge handles everything: swap, bridge, and delivery. USDC on Base arrives in your BlockForecast wallet within 1–5 minutes depending on the source chain.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="Path 2 — CEX withdrawal to Base">
+    If you already have USDC on a centralized exchange, you can withdraw directly to Base without using the bridge. Most major exchanges added Base support by 2026.
+
+    **Exchanges that support Base withdrawals:**
+
+    | Exchange | Base USDC | Regions |
+    |----------|-----------|---------|
+    | Binance | Yes | Nigeria, Ghana, Kenya, India, most of Asia and Africa |
+    | OKX | Yes | Nigeria and most regions |
+    | Bybit | Yes | Most regions including Nigeria |
+    | KuCoin | Yes | Most regions |
+    | Crypto.com | Yes | Region-restricted in some places |
+    | Coinbase | Yes (free) | US, Europe, parts of Asia — not Nigeria |
+
+    <Steps>
+      <Step title="Buy USDC on the exchange">
+        Purchase USDC using your preferred payment method. If you're in Nigeria, Binance Naira P2P is a reliable fiat onramp.
+      </Step>
+      <Step title="Go to Withdraw">
+        Navigate to the withdrawal screen for USDC.
+      </Step>
+      <Step title="Select the Base network">
+        This is the critical step. In the network selector, choose **Base** — not Ethereum, not Polygon, not BSC. Sending to the wrong network sends your funds to a different chain.
+
+        <Warning>
+          Always double-check the network selector before confirming a CEX withdrawal. Sending USDC on Ethereum mainnet to your BlockForecast address sends it to the wrong chain. Recovery through exchange support is sometimes possible but never guaranteed.
+        </Warning>
+      </Step>
+      <Step title="Paste your BlockForecast wallet address">
+        Find your wallet address under **Account** on BlockForecast and paste it into the exchange's withdrawal address field.
+      </Step>
+      <Step title="Confirm the withdrawal">
+        Confirm and submit. CEX withdrawals to Base typically arrive in seconds to a few minutes. Withdrawal fees are usually free or under $1.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="Path 3 — Bridge from Ethereum mainnet">
+    If you have USDC on Ethereum mainnet and prefer to bridge manually rather than use the in-app widget:
+
+    <Steps>
+      <Step title="Go to bridge.base.org">
+        Visit the official Base bridge at [bridge.base.org](https://bridge.base.org).
+      </Step>
+      <Step title="Connect your Ethereum wallet">
+        Connect the wallet holding USDC on Ethereum mainnet.
+      </Step>
+      <Step title="Select USDC and enter the amount">
+        Choose USDC as the asset and type in how much to bridge.
+      </Step>
+      <Step title="Confirm the transaction">
+        Approve and submit. You'll pay Ethereum mainnet gas (typically a few dollars). The bridge takes approximately 10 minutes to complete; longer during high network traffic.
+      </Step>
+      <Step title="Start trading">
+        Once USDC arrives on Base in your wallet, you're ready to trade on BlockForecast.
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## Regional onramps (Nigeria, Ghana, Kenya)
+
+If you're in a region where Coinbase isn't available, here are local fiat-to-crypto onramps that feed cleanly into Path 1 or Path 2:
+
+<AccordionGroup>
+  <Accordion title="Nigeria">
+    - **Binance Naira P2P** — buy USDT or BNB with NGN, then use Path 1 to bridge to USDC on Base, or withdraw USDC via Binance to Base directly (Path 2).
+    - **Yellow Card** — NGN to USDT or USDC, available in-app.
+    - **Moonpay** — card-funded crypto, supported in Nigeria.
+    - **Paxful** P2P — peer-to-peer trades for various fiat methods.
+  </Accordion>
+  <Accordion title="Ghana">
+    - **Yellow Card** — GHS to USDT or USDC.
+    - **Binance P2P** — GHS trades available.
+  </Accordion>
+  <Accordion title="Kenya">
+    - **Yellow Card** — KES to USDT or USDC.
+    - **Binance P2P** — KES trades available. M-Pesa is a common payment method on P2P.
+  </Accordion>
+</AccordionGroup>
+
+After acquiring any crypto via a local onramp, use the in-app bridge (Path 1) — it accepts any token on any chain and converts everything to USDC on Base automatically.
+
+## Don't have a wallet yet?
+
+When you sign in with Google, Apple, or email, BlockForecast automatically creates an embedded Base wallet for you via Privy. No seed phrase to back up, no browser extension to install. You can bring USDC to that wallet immediately.
+
+If you prefer self-custody:
+
+- **Coinbase Wallet** — best native Base experience
+- **MetaMask** — universal; add Base as a custom network
+- **Rainbow** — clean UX with Base support built in
+
+## Common mistakes
+
+<AccordionGroup>
+  <Accordion title="Wrong network on a CEX withdrawal">
+    Always select **Base** as the network when withdrawing USDC from an exchange. Choosing Ethereum, Polygon, or BNB Chain sends funds to the wrong chain. The in-app bridge (Path 1) avoids this entirely since it always delivers to Base.
+  </Accordion>
+  <Accordion title="Ending up with USDC.e instead of native USDC">
+    Some older bridge setups deliver USDC.e (bridged USDC). BlockForecast requires native USDC on Base. If you end up with USDC.e, swap it to native USDC via Uniswap on Base (small fee applies). Path 1 always delivers native USDC.
+  </Accordion>
+  <Accordion title="Insufficient ETH for Base gas">
+    Base transactions require a small amount of ETH for gas — typically fractions of a cent. If your wallet has USDC but no ETH, you won't be able to submit transactions. The in-app bridge handles this automatically. For manual setups, bridge a small amount of ETH to Base alongside your USDC.
+  </Accordion>
+</AccordionGroup>
+
+## Withdrawals
+
+Withdrawals work the same way in reverse. Under **Account**, the bridge-out widget lets you send USDC on Base to any destination chain and token in a single transaction.

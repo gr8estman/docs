@@ -1,0 +1,206 @@
+---
+title: "API Authentication: Wallet Signatures and API Keys"
+description: "Authenticate with the BlockForecast API using wallet-signed messages. Learn how to obtain and use API keys, handle auth errors, and keep your key secure."
+---
+
+BlockForecast uses a wallet-signature authentication model: you prove ownership of an Ethereum address by signing a structured message, and the API returns a short-lived key tied to that address. Every subsequent request passes this key in the `X-API-Key` header. There is no username/password and no OAuth flow — your wallet is your identity.
+
+## Obtain an API key
+
+To get a key you need an EVM-compatible wallet (MetaMask, Coinbase Wallet, a hardware wallet, or a programmatically generated key). The signing flow is:
+
+1. Construct a plain-text message that includes a timestamp to prevent replay attacks.
+2. Sign the message with your wallet's private key (EIP-191 personal sign).
+3. POST the address, message, and signature to `/api/v2/auth/token`.
+
+<Steps>
+  <Step title="Construct the message">
+    The message must be in the format `BlockForecast auth – <unix_timestamp>`. Use a timestamp within the last 5 minutes or the server will reject it.
+
+    <CodeGroup>
+
+    ```bash curl
+    # Generate a fresh Unix timestamp
+    TIMESTAMP=$(date +%s)
+    MESSAGE="BlockForecast auth – $TIMESTAMP"
+    echo $MESSAGE
+    ```
+
+    ```python Python
+    import time
+    message = f"BlockForecast auth – {int(time.time())}"
+    ```
+
+    ```typescript JavaScript / TypeScript
+    const timestamp = Math.floor(Date.now() / 1000);
+    const message = `BlockForecast auth – ${timestamp}`;
+    ```
+
+    </CodeGroup>
+  </Step>
+
+  <Step title="Sign the message">
+    Sign with your wallet. The signature must be an EIP-191 personal sign (`eth_personalSign`).
+
+    <CodeGroup>
+
+    ```python Python (web3.py)
+    from web3 import Web3
+    from eth_account import Account
+
+    w3 = Web3()
+    private_key = "0xYOUR_PRIVATE_KEY"
+    account = Account.from_key(private_key)
+
+    signed = w3.eth.account.sign_message(
+        w3.eth.account.messages.encode_defunct(text=message),
+        private_key=private_key,
+    )
+    signature = signed.signature.hex()
+    address = account.address
+    ```
+
+    ```typescript JavaScript / TypeScript (viem)
+    import { createWalletClient, http } from "viem";
+    import { privateKeyToAccount } from "viem/accounts";
+    import { base } from "viem/chains";
+
+    const account = privateKeyToAccount("0xYOUR_PRIVATE_KEY");
+    const client = createWalletClient({ account, chain: base, transport: http() });
+
+    const signature = await client.signMessage({ message });
+    const address = account.address;
+    ```
+
+    </CodeGroup>
+  </Step>
+
+  <Step title="Exchange for an API key">
+    POST the address, message, and signature to get your key.
+
+    <CodeGroup>
+
+    ```bash curl
+    curl -X POST https://blockforecast.io/api/v2/auth/token \
+      -H "Content-Type: application/json" \
+      -d "{
+        \"address\": \"$ADDRESS\",
+        \"message\": \"$MESSAGE\",
+        \"signature\": \"$SIGNATURE\"
+      }"
+    ```
+
+    ```python Python
+    import requests
+
+    resp = requests.post(
+        "https://blockforecast.io/api/v2/auth/token",
+        json={
+            "address": address,
+            "message": message,
+            "signature": signature,
+        },
+    )
+    resp.raise_for_status()
+    api_key = resp.json()["apiKey"]
+    ```
+
+    ```typescript JavaScript / TypeScript
+    const resp = await fetch("https://blockforecast.io/api/v2/auth/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ address, message, signature }),
+    });
+
+    if (!resp.ok) throw new Error(`Auth failed: ${resp.status}`);
+    const { apiKey } = await resp.json();
+    ```
+
+    </CodeGroup>
+
+    The response:
+
+    ```json
+    {
+      "apiKey": "bf_live_xxxxxxxxxxxxxxxxxxxx"
+    }
+    ```
+  </Step>
+</Steps>
+
+## Use your API key
+
+Pass your key in the `X-API-Key` header on every request.
+
+<CodeGroup>
+
+```bash curl
+curl https://blockforecast.io/api/v2/public/markets \
+  -H "X-API-Key: bf_live_xxxxxxxxxxxxxxxxxxxx"
+```
+
+```python Python
+import os, requests
+
+resp = requests.get(
+    "https://blockforecast.io/api/v2/public/markets",
+    headers={"X-API-Key": os.environ["BLOCKFORECAST_API_KEY"]},
+)
+```
+
+```typescript JavaScript / TypeScript
+const resp = await fetch("https://blockforecast.io/api/v2/public/markets", {
+  headers: { "X-API-Key": process.env.BLOCKFORECAST_API_KEY! },
+});
+```
+
+</CodeGroup>
+
+<Note>
+  The API also accepts `Authorization: Bearer <key>` as an alternative header if you prefer the standard Bearer scheme. Both formats are supported on all endpoints.
+</Note>
+
+## Revoke a key
+
+If your key is compromised, revoke it immediately:
+
+```bash curl
+curl -X POST https://blockforecast.io/api/v2/auth/revoke \
+  -H "X-API-Key: bf_live_xxxxxxxxxxxxxxxxxxxx"
+```
+
+The key is invalidated synchronously — any request using it after this point returns `401`.
+
+## Error codes
+
+| HTTP status | Code | Meaning |
+|---|---|---|
+| `401 Unauthorized` | `MISSING_KEY` | No `X-API-Key` header was provided. |
+| `401 Unauthorized` | `INVALID_KEY` | The key is malformed, expired, or has been revoked. |
+| `401 Unauthorized` | `SIGNATURE_INVALID` | The wallet signature did not verify correctly during token issuance. |
+| `401 Unauthorized` | `MESSAGE_EXPIRED` | The timestamp in the signed message is more than 5 minutes old. |
+| `403 Forbidden` | `INSUFFICIENT_PERMISSIONS` | The key is valid but your wallet does not have the required role (e.g., creator access to `POST /markets`). |
+
+A `401` error body looks like this:
+
+```json
+{
+  "error": "INVALID_KEY",
+  "message": "The provided API key is invalid or has been revoked."
+}
+```
+
+## Security best practices
+
+<Warning>
+  Never expose your API key in client-side JavaScript, public repositories, or build logs. Keys are tied to your wallet address and grant access to trade and manage markets on your behalf.
+</Warning>
+
+- Store keys in environment variables or a secrets manager (AWS Secrets Manager, Doppler, 1Password) — never hard-code them.
+- Use one key per application so you can revoke a single key without affecting other integrations.
+- Rotate keys on a schedule or immediately after any suspected exposure.
+- For server-to-server integrations, scope the signing wallet to only hold the permissions your application needs (e.g., a dedicated creator wallet for market creation bots).
+
+<Tip>
+  If you need to authenticate from a serverless or CI environment where you cannot interactively sign, generate a key once from a local wallet and store the resulting `bf_live_...` key as a secret in your deployment platform.
+</Tip>

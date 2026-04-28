@@ -1,0 +1,122 @@
+---
+title: "What Is a Prediction Market? A Plain-English Guide"
+description: "Prediction markets let you trade on real-world event outcomes. Prices reflect crowd probability estimates, and winning shares pay $1 each at settlement."
+---
+
+A prediction market is a marketplace where people buy and sell shares in the outcome of a real-world event. Each share trades at a price between $0 and $1, and that price directly represents the crowd's estimate of how likely the event is to happen. If the event resolves the way you predicted, your shares pay $1 each. If it doesn't, they pay $0. The mechanism is elegant: prices carry real information because people with money on the line think carefully before trading.
+
+## How prices work
+
+Every market has at least two sides — **YES** (the event will happen) and **NO** (it won't). The prices of all outcomes always add up to $1.
+
+If a YES share is trading at **$0.65**, the market is collectively saying there's roughly a 65% chance the event will happen. The corresponding NO share is $0.35.
+
+Here's a concrete example:
+
+> A market asks: "Will BTC close above $100,000 on December 31?"  
+> YES shares are trading at $0.72.  
+> The crowd thinks there's a 72% probability of that happening.
+
+If you think the crowd is underestimating the odds — say you believe it's closer to 85% — you buy YES shares at $0.72. If you're right and BTC closes above $100k, each share pays $1. Your $72 becomes $100. If you're wrong, you lose your $72.
+
+If you think the crowd is *overestimating* — you believe it's really only 50% — you buy NO shares at $0.28. If BTC closes below $100k, your $28 becomes $100.
+
+Prices move continuously as new information arrives. As more people trade, the price converges toward the best collective estimate of the probability.
+
+## Why prediction markets exist
+
+<AccordionGroup>
+  <Accordion title="Information aggregation">
+    Prediction markets pull together information from every participant: analysts, insiders, obsessives, people with specialized knowledge. The aggregate price is often more accurate than polls, pundit forecasts, or expert panels — because people reveal their true beliefs when money is at stake. This "wisdom of the crowd" effect is the core intellectual argument for prediction markets.
+  </Accordion>
+  <Accordion title="Trading edge">
+    If you have superior knowledge or analysis in a domain — you follow a sports team obsessively, you work in the relevant industry, you're a skilled forecaster — you can profit by trading where the market price is wrong. The market rewards accurate prediction.
+  </Accordion>
+  <Accordion title="Hedging">
+    Some participants use prediction markets to hedge real-world exposure. A business owner whose revenue depends on an election outcome, or a content creator with merchandise tied to a sports result, can hedge against an adverse outcome by buying shares on the other side.
+  </Accordion>
+</AccordionGroup>
+
+## How resolution works
+
+When a market's resolution criteria are met — the event happens or the deadline passes — the market settles and winners are paid.
+
+Different platforms handle resolution differently:
+
+| Platform | Resolution mechanism |
+|----------|---------------------|
+| Polymarket | UMA optimistic oracle — humans propose an outcome, anyone can dispute within a window, consensus settles |
+| Kalshi | Internal team reads sources and settles, audited under CFTC oversight |
+| BlockForecast | Multi-agent AI consensus — independent AI agents read authoritative sources, vote with confidence scores, and settle automatically |
+
+On BlockForecast, the AI oracle resolves markets within minutes of resolution criteria being met. There's no manual adjudication step, no dispute window to wait through. You can watch live agent voting and accuracy statistics on the [Oracle Dashboard](https://blockforecast.io/oracle).
+
+## Prediction markets vs. sports betting
+
+Prediction markets and sportsbooks look similar on the surface — both let you put money on an outcome. But the mechanics are meaningfully different.
+
+<Tabs>
+  <Tab title="How odds are set">
+    A **sportsbook** employs a team of oddsmakers who set the lines. They build in a margin (the "vig") designed to ensure the house profits over time regardless of the outcome. The odds are set *against* you.
+
+    A **prediction market** has no in-house oddsmaker. Prices are set entirely through trading between participants. The platform charges a small fee, but it isn't your direct counterparty in the same way a sportsbook is.
+  </Tab>
+  <Tab title="Purpose">
+    Sportsbooks are designed for entertainment betting. Prediction markets are designed for **price discovery** — the goal of the mechanism is to surface accurate probability estimates, not to maximize engagement or revenue per bet.
+  </Tab>
+  <Tab title="Settlement">
+    Both settle on the same real-world facts. But a sportsbook settles based on the bookmaker's private reading of those facts, with limited recourse. Prediction markets settle on public, verifiable sources — and platforms like BlockForecast publish their resolution sources openly.
+  </Tab>
+  <Tab title="Regulation">
+    In the US, Kalshi is CFTC-regulated as a Designated Contract Market — explicitly classified as a financial instrument, not gambling. Polymarket and BlockForecast operate as decentralized markets on crypto rails. The regulatory framing varies significantly by jurisdiction. See the [country-by-country legal breakdown](https://blockforecast.io/are-prediction-markets-legal).
+  </Tab>
+</Tabs>
+
+## What you can trade on BlockForecast
+
+BlockForecast supports markets across any topic with a clear, public, time-bounded answer:
+
+<CardGroup cols={2}>
+  <Card title="Crypto" icon="bitcoin">
+    Price levels, ETF approvals, protocol events, on-chain milestones — including real-time 5-minute BTC, ETH, and SOL up-or-down markets.
+  </Card>
+  <Card title="Sports" icon="trophy">
+    Match results, season outcomes, tournament winners across major leagues and competitions worldwide.
+  </Card>
+  <Card title="Politics" icon="landmark">
+    Elections, appointments, policy decisions, geopolitical events.
+  </Card>
+  <Card title="Tech & culture" icon="microchip">
+    Product launches, earnings reports, IPOs, awards, charts — anything with a verifiable outcome.
+  </Card>
+</CardGroup>
+
+## How BlockForecast is different
+
+Most prediction market platforms — Polymarket and Kalshi included — only allow their internal teams to list markets. BlockForecast has an **open creator program**: any approved user can create a market and earn **0.5% of every trade** that market generates, paid out in real time.
+
+To create a market, you apply for creator access (reviewed within 24 hours), then use the market creation interface to define the question, resolution criteria, and settlement date. See the [Creator Program](/creators/overview) for details.
+
+## Placing your first trade
+
+<Steps>
+  <Step title="Fund your account">
+    You need USDC on Base to trade. Use the in-app bridge to convert any crypto, or withdraw USDC from a CEX that supports Base. See [How to Deposit](/how-to-deposit).
+  </Step>
+  <Step title="Browse markets">
+    Go to [Markets](https://blockforecast.io/markets) and find a market you have an opinion on.
+  </Step>
+  <Step title="Choose YES or NO">
+    Review the current price (= the market's probability estimate). If you think the true probability is higher than the YES price, buy YES. If you think it's lower, buy NO.
+  </Step>
+  <Step title="Enter your trade size">
+    The minimum trade is $1 USDC. The LMSR market maker provides instant liquidity at any size — no need to wait for a counterparty.
+  </Step>
+  <Step title="Confirm and wait for resolution">
+    Submit your trade. When the event resolves, winning shares automatically pay $1 each to your wallet.
+  </Step>
+</Steps>
+
+<Note>
+  Most casual traders lose net over time on prediction markets, the same as any financial market. Skilled forecasters with domain expertise and disciplined probability estimates do well. Start with small amounts while you learn how prices move.
+</Note>

@@ -1,0 +1,109 @@
+---
+title: "AI Oracle: How BlockForecast Resolves Markets"
+description: "BlockForecast resolves markets with a multi-agent AI oracle. Seven agents vote with confidence scores, reach weighted consensus, and self-calibrate over time."
+---
+
+BlockForecast does not rely on human voters, a dispute window, or internal staff to decide market outcomes. Instead, every market that closes enters an automated resolution pipeline where seven independent AI agents read authoritative sources in parallel, emit confidence-weighted votes, and reach consensus — typically in under five minutes. The system is self-improving: each agent's historical accuracy in a given category feeds back into how much weight its vote carries on future resolutions. No single agent can swing an outcome, and every step of the process is logged publicly on the oracle dashboard.
+
+## How the oracle works
+
+<Steps>
+  <Step title="Market closes and queues for resolution">
+    When a market reaches its resolution date, the resolution scanner picks it up and queues it automatically. Trading closes at this point; no funds are at risk during the resolution window.
+  </Step>
+  <Step title="Specialist agents are assigned">
+    The oracle routes the market to the right agents based on category. Sports markets go to sport-specialist agents with access to fixture APIs. Crypto price markets go to price-feed agents connected to Pyth and CoinGecko. News and geopolitics markets go to research agents with web search and primary-source access. Each agent is an independent LLM from a different frontier model provider.
+  </Step>
+  <Step title="Agents evaluate independently and vote">
+    Seven agents run in parallel. Each agent reads the sources that were whitelisted at market creation — the same sources the market creator specified — and evaluates the resolution criteria. Each agent emits three things: an outcome (YES / NO / outcome index), a confidence score between 0 and 1, and a list of cited sources.
+  </Step>
+  <Step title="Consensus algorithm combines the votes">
+    The consensus algorithm weights each agent's vote by its historical calibration score for that market category. Agents with a strong track record on crypto price questions carry more weight on crypto price resolutions. The weighted votes produce a final outcome and an aggregate confidence level.
+  </Step>
+  <Step title="Outcome commits or escalates">
+    If aggregate confidence clears the threshold and a majority of agents agree, the outcome commits and the market settles. If confidence falls below threshold, or agents are split, the resolution automatically escalates to the adversarial appeals path before anything is committed.
+  </Step>
+</Steps>
+
+## Self-improving calibration
+
+The oracle maintains a calibration table that tracks each agent's resolution accuracy, broken down by market category. After every committed resolution, that agent's record updates. Agents that are accurate on a category gain weight in future votes; agents whose accuracy drifts lose it. This means the system gets more reliable over time without any manual tuning — the feedback loop is automatic.
+
+<Note>
+  You can view each agent's live calibration score, running accuracy by category, and voting history on the public [oracle dashboard](https://blockforecast.io/oracle). No account required.
+</Note>
+
+## What sources do the agents read?
+
+Sources are selected and frozen at market creation. The agents at resolution check exactly the sources the creator listed — no source-shopping after the fact. Approved source categories include:
+
+| Category | Sources |
+|---|---|
+| Sports | API-Football, ESPN, league official sites |
+| Crypto prices | Pyth Hermes, CoinGecko, Coinbase API |
+| News / politics | AP News, Reuters, web search, official government sources |
+| Tech / culture | Web search, official announcements, primary sources |
+
+## Why multiple agents?
+
+A single LLM can confidently produce a wrong answer. Seven independent agents from different providers are far harder to fool, and their disagreement is itself informative.
+
+<CardGroup cols={2}>
+  <Card title="Hallucination resistance" icon="shield">
+    When all seven agents agree, that agreement is a much stronger signal than any single model's output. Disagreement automatically flags the resolution for closer review.
+  </Card>
+  <Card title="Provider diversity" icon="shuffle">
+    Agents use frontier models from different providers. Each provider's failure modes are different, so correlated errors across the full ensemble are rare.
+  </Card>
+  <Card title="Calibrated weighting" icon="chart-bar">
+    Votes are weighted by each agent's track record in the relevant category, not treated as equal. The system trusts the right voice for each type of question.
+  </Card>
+  <Card title="Full auditability" icon="eye">
+    Every agent's vote, confidence, and cited sources are logged in the public oracle dashboard. You can inspect any resolution in detail.
+  </Card>
+</CardGroup>
+
+## When agents disagree: the appeals path
+
+If the primary consensus round falls below the confidence threshold, or if you believe a market was resolved incorrectly, a separate adversarial appeals path runs. Fresh agents that did not participate in the original round review the same question — specifically tasked with finding what the first round might have missed. This blind adversarial review adds an independent check before any final override.
+
+<Warning>
+  If the AI consensus is provably wrong and the appeals path does not correct it, the platform reserves the right to apply a manual override. Manual overrides are used rarely and are always logged publicly. See the [resolution policy](/how-it-works/resolution-policy) for the full rules around manual overrides and disputes.
+</Warning>
+
+## Resolution speed comparison
+
+| Resolution mechanism | Typical time |
+|---|---|
+| UMA optimistic oracle (Polymarket) | ~2 hours minimum (challenge window) |
+| Human staff (Kalshi) | Minutes to hours, varies by category |
+| Multi-agent AI consensus (BlockForecast) | Under 5 minutes in most cases |
+
+## Common questions
+
+<AccordionGroup>
+  <Accordion title="Which LLMs do the agents use?">
+    The oracle uses a mix of frontier models from multiple providers. The exact combination is an implementation detail that gets tuned as new models are released and existing ones are evaluated. What stays constant is the multi-provider requirement — the oracle never relies on a single model.
+  </Accordion>
+  <Accordion title="What happens if all the LLMs go offline?">
+    Resolution waits. The market stays in `resolving` state until consensus can be reached. Trading is closed during this window, so no funds are at risk. You can monitor oracle uptime at the [status page](https://blockforecast.io/status).
+  </Accordion>
+  <Accordion title="Can I see how agents voted before the final outcome?">
+    Yes. The [oracle dashboard](https://blockforecast.io/oracle) shows live agent progress on resolutions that are currently in flight, including individual votes and confidence scores as they come in.
+  </Accordion>
+  <Accordion title="Can agents be bribed or manipulated?">
+    Agents are server-side LLMs with no wallet and no economic stake in outcomes. They have no incentive structure that can be exploited the way token-weighted human voting systems can. The source whitelist is frozen at market creation, which removes the possibility of source-shopping after the fact.
+  </Accordion>
+  <Accordion title="What if a market's resolution criteria is ambiguous?">
+    Ambiguous criteria lower agent confidence, which can push the resolution below the consensus threshold. When that happens, the resolution escalates to the appeals path. If the criteria is genuinely unresolvable, the market may settle as "no resolution" and positions are refunded. The [resolution policy](/how-it-works/resolution-policy) covers edge cases in detail.
+  </Accordion>
+</AccordionGroup>
+
+<CardGroup cols={2}>
+  <Card title="Live oracle dashboard" icon="chart-line" href="https://blockforecast.io/oracle">
+    View agent votes, confidence scores, and calibration stats in real time.
+  </Card>
+  <Card title="Resolution policy" icon="file-lines" href="/how-it-works/resolution-policy">
+    Read the full rules for how markets settle, disputes, and manual overrides.
+  </Card>
+</CardGroup>

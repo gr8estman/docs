@@ -1,0 +1,505 @@
+---
+title: "Public REST API Reference: Markets and Trades"
+description: "Complete reference for all BlockForecast public REST API endpoints — list markets, fetch trade data, place trades, and create markets with creator access."
+---
+
+The BlockForecast public REST API exposes prediction market data and trading functionality over standard HTTP. All endpoints live under `https://blockforecast.io/api/v2/public/` and require an `X-API-Key` header. This page documents every endpoint with full parameter descriptions, response field definitions, and working code examples in curl, Python, and TypeScript. If you have not yet obtained an API key, start with [Authentication](/developers/authentication).
+
+<Note>
+  All monetary values are returned as floating-point USD (e.g., `18420.50`) in the REST API. On-chain, amounts are USDC with 6-decimal precision — keep this in mind if you are reconciling against on-chain data.
+</Note>
+
+---
+
+## GET /public/markets
+
+Returns a paginated, filterable list of prediction markets.
+
+### Query parameters
+
+<ParamField query="status" type="string">
+  Filter by market status. One of `active`, `resolved`, `cancelled`. Omit to return all statuses.
+</ParamField>
+
+<ParamField query="category" type="string">
+  Filter by category slug. Common values: `crypto`, `sports`, `politics`, `science`, `entertainment`. Omit to return all categories.
+</ParamField>
+
+<ParamField query="limit" type="integer">
+  Number of markets to return per page. Maximum `100`. Default `20`.
+</ParamField>
+
+<ParamField query="offset" type="integer">
+  Pagination offset. Default `0`.
+</ParamField>
+
+<ParamField query="sort" type="string">
+  Sort order. One of `volume_desc` (default), `created_desc`, `resolve_asc`.
+</ParamField>
+
+### Response fields
+
+<ResponseField name="markets" type="array">
+  Array of market objects.
+
+  <Expandable title="Market object fields">
+    <ResponseField name="id" type="string">
+      Unique market identifier with `mkt_` prefix.
+    </ResponseField>
+    <ResponseField name="slug" type="string">
+      URL-friendly market slug (e.g., `btc-above-150k-dec-2026`).
+    </ResponseField>
+    <ResponseField name="question" type="string">
+      The full market question text.
+    </ResponseField>
+    <ResponseField name="category" type="string">
+      Category slug.
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      One of `active`, `resolved`, `cancelled`.
+    </ResponseField>
+    <ResponseField name="yesPrice" type="number">
+      Current LSMR YES price as a probability (0–1).
+    </ResponseField>
+    <ResponseField name="noPrice" type="number">
+      Current LSMR NO price as a probability (0–1).
+    </ResponseField>
+    <ResponseField name="volume" type="number">
+      Total trade volume in USD.
+    </ResponseField>
+    <ResponseField name="liquidity" type="number">
+      Available liquidity in USD.
+    </ResponseField>
+    <ResponseField name="resolveDate" type="string">
+      ISO 8601 resolution date.
+    </ResponseField>
+    <ResponseField name="createdAt" type="string">
+      ISO 8601 creation timestamp.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="total" type="integer">
+  Total number of markets matching the query (before pagination).
+</ResponseField>
+
+<ResponseField name="limit" type="integer">
+  The effective limit applied.
+</ResponseField>
+
+<ResponseField name="offset" type="integer">
+  The effective offset applied.
+</ResponseField>
+
+### Examples
+
+<Tabs>
+  <Tab title="curl">
+    ```bash
+    curl "https://blockforecast.io/api/v2/public/markets?status=active&category=crypto&limit=5" \
+      -H "X-API-Key: $BLOCKFORECAST_API_KEY"
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    import os, requests
+
+    resp = requests.get(
+        "https://blockforecast.io/api/v2/public/markets",
+        headers={"X-API-Key": os.environ["BLOCKFORECAST_API_KEY"]},
+        params={"status": "active", "category": "crypto", "limit": 5},
+    )
+    resp.raise_for_status()
+    data = resp.json()
+
+    for market in data["markets"]:
+        print(f"{market['question']} — YES: {market['yesPrice']:.2f}")
+    ```
+  </Tab>
+  <Tab title="TypeScript">
+    ```typescript
+    const resp = await fetch(
+      "https://blockforecast.io/api/v2/public/markets?status=active&category=crypto&limit=5",
+      { headers: { "X-API-Key": process.env.BLOCKFORECAST_API_KEY! } }
+    );
+    if (!resp.ok) throw new Error(`API error: ${resp.status}`);
+    const data = await resp.json();
+
+    for (const market of data.markets) {
+      console.log(`${market.question} — YES: ${market.yesPrice.toFixed(2)}`);
+    }
+    ```
+  </Tab>
+</Tabs>
+
+**Example response:**
+
+```json
+{
+  "markets": [
+    {
+      "id": "mkt_01hx9z3kqb8v2wyn4rfpje5d7t",
+      "slug": "btc-above-150k-dec-2026",
+      "question": "Will BTC close above $150k on Dec 31, 2026?",
+      "category": "crypto",
+      "status": "active",
+      "yesPrice": 0.34,
+      "noPrice": 0.66,
+      "volume": 18420.50,
+      "liquidity": 4100.00,
+      "resolveDate": "2026-12-31T23:59:59Z",
+      "createdAt": "2026-01-15T10:22:00Z"
+    }
+  ],
+  "total": 142,
+  "limit": 5,
+  "offset": 0
+}
+```
+
+---
+
+## GET /public/markets/:id
+
+Fetches a single market by its ID.
+
+### Path parameters
+
+<ParamField path="id" type="string" required>
+  The market ID (with `mkt_` prefix) or the market slug. Both are accepted.
+</ParamField>
+
+### Response fields
+
+Returns a single market object with all the fields described in `GET /markets`, plus:
+
+<ResponseField name="resolutionCriteria" type="string">
+  The plain-text criteria the AI oracle uses to resolve the market.
+</ResponseField>
+
+<ResponseField name="creator" type="object">
+  Creator metadata.
+
+  <Expandable title="Creator fields">
+    <ResponseField name="address" type="string">
+      The Ethereum address of the market creator.
+    </ResponseField>
+    <ResponseField name="displayName" type="string">
+      Creator display name, if set.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="resolution" type="object">
+  Present only on resolved markets.
+
+  <Expandable title="Resolution fields">
+    <ResponseField name="outcome" type="string">
+      `YES` or `NO`.
+    </ResponseField>
+    <ResponseField name="resolvedAt" type="string">
+      ISO 8601 timestamp when the oracle resolved the market.
+    </ResponseField>
+    <ResponseField name="oracleConsensus" type="number">
+      Oracle confidence score (0–1) at resolution time.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Examples
+
+<Tabs>
+  <Tab title="curl">
+    ```bash
+    curl "https://blockforecast.io/api/v2/public/markets/mkt_01hx9z3kqb8v2wyn4rfpje5d7t" \
+      -H "X-API-Key: $BLOCKFORECAST_API_KEY"
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    import os, requests
+
+    market_id = "mkt_01hx9z3kqb8v2wyn4rfpje5d7t"
+    resp = requests.get(
+        f"https://blockforecast.io/api/v2/public/markets/{market_id}",
+        headers={"X-API-Key": os.environ["BLOCKFORECAST_API_KEY"]},
+    )
+    resp.raise_for_status()
+    market = resp.json()
+    print(f"YES: {market['yesPrice']}, NO: {market['noPrice']}")
+    ```
+  </Tab>
+  <Tab title="TypeScript">
+    ```typescript
+    const marketId = "mkt_01hx9z3kqb8v2wyn4rfpje5d7t";
+    const resp = await fetch(
+      `https://blockforecast.io/api/v2/public/markets/${marketId}`,
+      { headers: { "X-API-Key": process.env.BLOCKFORECAST_API_KEY! } }
+    );
+    if (!resp.ok) throw new Error(`API error: ${resp.status}`);
+    const market = await resp.json();
+    console.log(`YES: ${market.yesPrice}, NO: ${market.noPrice}`);
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## POST /public/markets
+
+Creates a new prediction market. Requires your wallet to have approved creator status. [Apply for creator access](/creators/apply) — applications are reviewed within 24 hours.
+
+### Request body
+
+<ParamField body="question" type="string" required>
+  The market question. Should be phrased as a binary yes/no question. Maximum 280 characters.
+</ParamField>
+
+<ParamField body="description" type="string">
+  Additional context about the market. Markdown supported. Maximum 2000 characters.
+</ParamField>
+
+<ParamField body="resolutionCriteria" type="string" required>
+  Clear, unambiguous criteria that define how the market resolves. The AI oracle uses this text. Maximum 1000 characters.
+</ParamField>
+
+<ParamField body="resolveDate" type="string" required>
+  ISO 8601 date-time for when the market is eligible for resolution (e.g., `2026-12-31T23:59:59Z`). Must be at least 1 hour in the future.
+</ParamField>
+
+<ParamField body="category" type="string" required>
+  Category slug. One of: `crypto`, `sports`, `politics`, `science`, `entertainment`, `other`.
+</ParamField>
+
+### Response fields
+
+Returns the newly created market object with all fields from `GET /markets/:id`.
+
+<ResponseField name="id" type="string">
+  The new market's unique identifier.
+</ResponseField>
+
+<ResponseField name="slug" type="string">
+  The URL slug generated from the question.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Always `active` on creation.
+</ResponseField>
+
+### Examples
+
+<Tabs>
+  <Tab title="curl">
+    ```bash
+    curl -X POST "https://blockforecast.io/api/v2/public/markets" \
+      -H "X-API-Key: $BLOCKFORECAST_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "question": "Will ETH surpass $10,000 before July 2027?",
+        "description": "Tracks ETH/USD price on Coinbase Pro at any point before the resolution date.",
+        "resolutionCriteria": "Resolves YES if ETH/USD closes above $10,000 on Coinbase Pro on any day before July 1, 2027. Resolves NO otherwise.",
+        "resolveDate": "2027-07-01T00:00:00Z",
+        "category": "crypto"
+      }'
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    import os, requests
+
+    resp = requests.post(
+        "https://blockforecast.io/api/v2/public/markets",
+        headers={
+            "X-API-Key": os.environ["BLOCKFORECAST_API_KEY"],
+            "Content-Type": "application/json",
+        },
+        json={
+            "question": "Will ETH surpass $10,000 before July 2027?",
+            "description": "Tracks ETH/USD price on Coinbase Pro at any point before the resolution date.",
+            "resolutionCriteria": "Resolves YES if ETH/USD closes above $10,000 on Coinbase Pro on any day before July 1, 2027. Resolves NO otherwise.",
+            "resolveDate": "2027-07-01T00:00:00Z",
+            "category": "crypto",
+        },
+    )
+    resp.raise_for_status()
+    market = resp.json()
+    print(f"Created market: https://blockforecast.io/market/{market['slug']}")
+    ```
+  </Tab>
+  <Tab title="TypeScript">
+    ```typescript
+    const resp = await fetch("https://blockforecast.io/api/v2/public/markets", {
+      method: "POST",
+      headers: {
+        "X-API-Key": process.env.BLOCKFORECAST_API_KEY!,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        question: "Will ETH surpass $10,000 before July 2027?",
+        description: "Tracks ETH/USD price on Coinbase Pro at any point before the resolution date.",
+        resolutionCriteria:
+          "Resolves YES if ETH/USD closes above $10,000 on Coinbase Pro on any day before July 1, 2027. Resolves NO otherwise.",
+        resolveDate: "2027-07-01T00:00:00Z",
+        category: "crypto",
+      }),
+    });
+    if (!resp.ok) throw new Error(`API error: ${resp.status}`);
+    const market = await resp.json();
+    console.log(`Created: https://blockforecast.io/market/${market.slug}`);
+    ```
+  </Tab>
+</Tabs>
+
+<Warning>
+  If your API key's wallet does not have creator status, this endpoint returns `403 Forbidden` with code `INSUFFICIENT_PERMISSIONS`. Apply at [blockforecast.io/apply](/creators/apply) — the same approval covers both the public API and the x402 Agent API.
+</Warning>
+
+---
+
+## GET /public/markets/:id/trades
+
+Returns a paginated list of trades for a specific market, ordered from most recent to oldest.
+
+### Path parameters
+
+<ParamField path="id" type="string" required>
+  The market ID or slug.
+</ParamField>
+
+### Query parameters
+
+<ParamField query="limit" type="integer">
+  Number of trades to return. Maximum `100`. Default `20`.
+</ParamField>
+
+<ParamField query="offset" type="integer">
+  Pagination offset. Default `0`.
+</ParamField>
+
+<ParamField query="side" type="string">
+  Filter by trade side. One of `YES`, `NO`. Omit to return both.
+</ParamField>
+
+### Response fields
+
+<ResponseField name="trades" type="array">
+  Array of trade objects.
+
+  <Expandable title="Trade object fields">
+    <ResponseField name="id" type="string">
+      Unique trade identifier with `trd_` prefix.
+    </ResponseField>
+    <ResponseField name="marketId" type="string">
+      The market this trade belongs to.
+    </ResponseField>
+    <ResponseField name="side" type="string">
+      `YES` or `NO`.
+    </ResponseField>
+    <ResponseField name="shares" type="number">
+      Number of shares purchased.
+    </ResponseField>
+    <ResponseField name="pricePerShare" type="number">
+      Effective price per share at execution (0–1).
+    </ResponseField>
+    <ResponseField name="totalCost" type="number">
+      Total USDC cost of the trade.
+    </ResponseField>
+    <ResponseField name="traderAddress" type="string">
+      Ethereum address of the trader (may be partial for privacy).
+    </ResponseField>
+    <ResponseField name="createdAt" type="string">
+      ISO 8601 timestamp of the trade.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="total" type="integer">
+  Total number of trades for this market.
+</ResponseField>
+
+### Examples
+
+<Tabs>
+  <Tab title="curl">
+    ```bash
+    curl "https://blockforecast.io/api/v2/public/markets/mkt_01hx9z3kqb8v2wyn4rfpje5d7t/trades?limit=10" \
+      -H "X-API-Key: $BLOCKFORECAST_API_KEY"
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    import os, requests
+
+    market_id = "mkt_01hx9z3kqb8v2wyn4rfpje5d7t"
+    resp = requests.get(
+        f"https://blockforecast.io/api/v2/public/markets/{market_id}/trades",
+        headers={"X-API-Key": os.environ["BLOCKFORECAST_API_KEY"]},
+        params={"limit": 10},
+    )
+    resp.raise_for_status()
+    data = resp.json()
+
+    for trade in data["trades"]:
+        print(f"{trade['side']} | {trade['shares']} shares @ {trade['pricePerShare']:.3f}")
+    ```
+  </Tab>
+  <Tab title="TypeScript">
+    ```typescript
+    const marketId = "mkt_01hx9z3kqb8v2wyn4rfpje5d7t";
+    const resp = await fetch(
+      `https://blockforecast.io/api/v2/public/markets/${marketId}/trades?limit=10`,
+      { headers: { "X-API-Key": process.env.BLOCKFORECAST_API_KEY! } }
+    );
+    if (!resp.ok) throw new Error(`API error: ${resp.status}`);
+    const data = await resp.json();
+
+    for (const trade of data.trades) {
+      console.log(`${trade.side} | ${trade.shares} shares @ ${trade.pricePerShare.toFixed(3)}`);
+    }
+    ```
+  </Tab>
+</Tabs>
+
+**Example response:**
+
+```json
+{
+  "trades": [
+    {
+      "id": "trd_01hz4m7pqk9c3xbn6sgwre2f8v",
+      "marketId": "mkt_01hx9z3kqb8v2wyn4rfpje5d7t",
+      "side": "YES",
+      "shares": 50.0,
+      "pricePerShare": 0.341,
+      "totalCost": 17.05,
+      "traderAddress": "0x1a2b...f9e0",
+      "createdAt": "2026-04-27T14:35:12Z"
+    }
+  ],
+  "total": 1204,
+  "limit": 10,
+  "offset": 0
+}
+```
+
+---
+
+## Additional endpoints
+
+The following endpoints are available but covered separately in the authentication and trading documentation:
+
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/api/v2/auth/token` | Obtain an API key from a wallet signature. |
+| `POST` | `/api/v2/auth/revoke` | Revoke an API key. |
+| `GET` | `/api/v2/public/markets/:id/price` | Current LSMR price and price impact for a given quote size. |
+| `GET` | `/api/v2/public/markets/:id/history` | OHLC price history. |
+| `POST` | `/api/v2/public/markets/:id/trade` | Place a trade on a market. |
+| `GET` | `/api/v2/public/positions` | Open positions for your wallet. |
+| `GET` | `/api/v2/public/positions/history` | Trade history for your wallet. |
+| `GET` | `/api/v2/public/balance` | Your USDC balance on BlockForecast. |
+
+<Tip>
+  To create markets programmatically without the manual creator approval flow, see the [x402 Agent API](/developers/x402-overview) — autonomous agents can pay $1 USDC per market with no signup required (creator approval still needed, but the flow is fully programmatic).
+</Tip>

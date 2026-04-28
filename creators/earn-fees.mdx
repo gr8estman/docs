@@ -1,0 +1,86 @@
+---
+title: "How Creator Fees Work: Earn 0.5% on Every Trade"
+description: "BlockForecast pays creators 0.5% of every trade in real time. Learn how the fee is calculated, when you get paid, and strategies to maximize your earnings."
+---
+
+Every time a trader buys or sells a position on a market you created, 0.5% of that trade flows directly to your wallet. The payout happens on-chain in real time — there's no batching, no review process for withdrawals, and no vesting schedule. You own your earnings the moment a trade settles. If you never log in again after launching a market, the fees keep accumulating until the market resolves.
+
+## How the fee is calculated
+
+The creator fee is 0.5% of each trade's notional value. It is separate from the platform's protocol fee — traders see the total fee at trade time, and the 0.5% creator portion is a fixed commitment that doesn't change if BlockForecast later adjusts its own protocol fee.
+
+| Market lifetime volume | Creator earns |
+|------------------------|---------------|
+| $1,000 | $5 |
+| $10,000 | $50 |
+| $50,000 | $250 |
+| $100,000 | $500 |
+| $500,000 | $2,500 |
+| $1,000,000 | $5,000 |
+
+A single high-volume market can be meaningful, but most creators build earnings across a portfolio. Thirty markets each doing $20,000 in volume generates $3,000 — the same as one $600,000 market, but with much lower variance.
+
+<Note>
+  Creator fees are only paid on resolved trade volume. If a market is voided (for example, because the resolution event was cancelled with no outcome), fees are not paid for trades on that market.
+</Note>
+
+## When fees are paid
+
+Fees are paid in real time on each trade. They accumulate in your creator balance on the platform and are withdrawable at any time to USDC on your wallet on Base. There is no minimum withdrawal threshold and no waiting period.
+
+## Where to view your earnings
+
+Your creator dashboard at `/creator-dashboard` shows:
+
+- **Total lifetime earnings** across all markets
+- **Per-market breakdown** — volume, number of trades, fee income, and resolution status for each market you've created
+- **Withdrawal history** — a record of every time you've transferred earnings to your wallet
+- **Trader count** — how many unique addresses have traded on each market
+
+The leaderboard at `/leaderboard` also surfaces top creators by volume, which provides additional platform visibility for high-performing creators.
+
+## How to maximize your creator earnings
+
+### Cover topics with built-in audiences
+
+The highest-earning markets are ones where traders arrive without the creator needing to recruit them. Major sports fixtures, BTC/ETH price milestones, and US election events have pre-existing trader interest. But niche markets — where you're the only creator covering a specific league or topic — can outperform on creator yield because you face no competition and you're the go-to source for that audience.
+
+### Launch markets well before the event
+
+A sports market launched five days before kickoff captures the full pre-match trading curve. The same market launched on game day captures only a fraction of the potential volume. For crypto markets, give traders enough time to form a view and build a position.
+
+<Tip>
+  For recurring events — weekly fixtures, monthly price snapshots, quarterly earnings — set up a regular publishing schedule. Traders who trade your first market will return if they know you publish consistently.
+</Tip>
+
+### Distribute your markets actively
+
+Platform discovery helps, but creators who share market URLs directly earn significantly more than those who rely solely on browse traffic. Share to X, Discord, Farcaster, newsletters, or community channels where your audience is. The link to any market is shareable directly — there's no friction for a new user to arrive at your market and place a trade.
+
+### Build a portfolio, not a one-shot
+
+One viral market is unpredictable. A portfolio of 20–50 well-chosen markets in your domain is a reliable income stream. Top creators treat this like a content schedule: a set number of new markets per week, covering upcoming events in their topic areas, maintained consistently.
+
+### Write markets that attract confident traders
+
+Traders place larger positions when resolution criteria are unambiguous. A clear, specific market with tight criteria draws higher average trade sizes than a vague market with the same topic. Time spent on resolution criteria pays off in volume. See [Create a market](/creators/create-a-market) for guidance on writing strong criteria.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Does the creator fee come out of the trader's position or on top?">
+    The 0.5% creator fee is part of the total trading fee that traders see at trade time. It does not reduce your winning payout if you also trade on your own market — it is paid at trade entry, not at resolution.
+  </Accordion>
+  <Accordion title="What happens to my fees if the platform's protocol fee changes?">
+    Creator fees are locked at 0.5% at market creation. Protocol fee changes apply only to new markets created after the change. Your existing markets continue to pay you 0.5% for their entire lifetime.
+  </Accordion>
+  <Accordion title="Can I trade on my own markets?">
+    Yes. There is no restriction on creators trading on their own markets. However, creating markets based on insider information you hold is prohibited and will result in account termination.
+  </Accordion>
+  <Accordion title="How do I withdraw my earnings?">
+    Go to your creator dashboard and use the withdrawal flow to transfer your balance to USDC on Base. There is no minimum amount and no waiting period. Gas costs on Base are typically less than a cent.
+  </Accordion>
+  <Accordion title="Do I earn fees on the initial liquidity the LSMR provides?">
+    The LSMR automated market maker provides initial liquidity but does not generate creator fees — only trades by external users do. As user volume grows, the LSMR's share of activity decreases relative to organic trading.
+  </Accordion>
+</AccordionGroup>

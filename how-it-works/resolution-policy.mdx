@@ -1,0 +1,120 @@
+---
+title: "Resolution Policy: How Markets Settle on BlockForecast"
+description: "BlockForecast's resolution policy — source whitelists, step-by-step settlement, the dispute and appeals path, manual override rules, and edge cases."
+---
+
+Every prediction market on BlockForecast settles according to the rules below. These rules apply to every market regardless of category, creator, or trading volume. Understanding the resolution policy helps you evaluate whether a market's resolution criteria is well-defined before you trade, know what to do if you believe a resolution is wrong, and understand the rare circumstances in which the platform can step in directly.
+
+## Source whitelist
+
+Sources used to resolve a market are selected at creation time and frozen. The creator specifies which sources the AI oracle will consult, and the agents at resolution check exactly those sources — nothing else. This prevents source-shopping after the fact and gives you a clear picture of what evidence will decide the outcome before you place a trade.
+
+Approved source categories are:
+
+- **Official data feeds** — Pyth Hermes, CoinGecko, Coinbase API for price-based markets
+- **Sports data APIs** — API-Football, league official sites, ESPN for fixture results
+- **Wire services** — AP News and Reuters for news and political events
+- **Official government or institutional sources** — cited at market creation for policy or regulatory markets
+- **Primary announcements** — official company, protocol, or organization announcements for tech and culture markets
+
+<Warning>
+  A market that cites a source outside the approved whitelist will not be eligible for AI oracle resolution. If a creator lists an unapproved source, the market will be flagged at creation review and returned for correction before going live.
+</Warning>
+
+## How resolution works, step by step
+
+<Steps>
+  <Step title="Market closes">
+    At the resolution date, trading closes and the market enters `resolving` state. No new positions can be opened or closed during this window.
+  </Step>
+  <Step title="AI agents vote">
+    Seven independent AI agents are assigned based on market category. Each agent reads the whitelisted sources, evaluates the resolution criteria, and emits a vote (YES / NO / outcome index), a confidence score, and citations. Agents run in parallel — see [AI oracle](/how-it-works/ai-oracle) for the full architecture.
+  </Step>
+  <Step title="Consensus is evaluated">
+    The consensus algorithm combines the seven votes, weighting each by the agent's historical accuracy in that category. If a majority of agents agree and aggregate confidence clears the required threshold, the outcome is ready to commit.
+  </Step>
+  <Step title="Market settles">
+    Once consensus commits, the market settles and payouts are distributed automatically to winning positions. USDC is credited to your account balance on Base.
+  </Step>
+</Steps>
+
+<Note>
+  The entire process — from market close to settlement — typically completes in under five minutes for straightforward resolutions.
+</Note>
+
+## Dispute path
+
+If you believe a market was resolved incorrectly, you can file an appeal during the appeal window that opens immediately after resolution commits.
+
+<Steps>
+  <Step title="File an appeal">
+    Submit your appeal through the market detail page or by emailing [support@blockforecast.io](mailto:support@blockforecast.io). Include your reasoning and any evidence you believe the agents missed or misread.
+  </Step>
+  <Step title="Blind adversarial review runs">
+    A separate set of fresh agents — agents that did not participate in the original consensus round — reviews the same question independently. They are specifically tasked with finding what the first round might have missed. They do not see the original outcome before completing their own evaluation.
+  </Step>
+  <Step title="Appeals outcome is determined">
+    If the adversarial review agrees with the original outcome, the resolution stands. If it disagrees, the resolution is escalated for manual review by the platform team.
+  </Step>
+  <Step title="Final determination">
+    The team reviews the full record: original agent votes, citations, adversarial review output, and the evidence you submitted. A final determination is issued and logged publicly on the oracle dashboard.
+  </Step>
+</Steps>
+
+<Info>
+  Filing an appeal does not delay payout for other participants. Payouts are held in escrow during an active appeal window and released once the determination is final.
+</Info>
+
+## Manual override
+
+The platform team can step in and apply a manual override in a small set of defined circumstances. Manual overrides are used rarely and are never applied silently — every override is logged publicly on the oracle dashboard with a written rationale.
+
+<AccordionGroup>
+  <Accordion title="When can a manual override be applied?">
+    A manual override is permitted when:
+    - The AI consensus is demonstrably wrong based on verifiable, publicly accessible evidence
+    - A bug in the resolution pipeline caused an incorrect outcome
+    - A whitelisted source published incorrect data and subsequently issued a correction
+    - The market resolution criteria contains a drafting error that makes correct resolution impossible without interpretation
+
+    Manual overrides are not applied because the outcome is unpopular, because trading volume was high, or at the request of any individual trader or creator.
+  </Accordion>
+  <Accordion title="Who authorizes a manual override?">
+    Manual overrides require sign-off from the platform team, not a single individual. The decision and its rationale are written up and posted to the oracle dashboard before or simultaneously with the override taking effect.
+  </Accordion>
+  <Accordion title="Can I appeal a manual override?">
+    Yes. If you disagree with a manual override determination, email [support@blockforecast.io](mailto:support@blockforecast.io) with your evidence. The team will review and respond. If the override is reversed, affected positions are re-settled.
+  </Accordion>
+</AccordionGroup>
+
+## Edge cases
+
+<AccordionGroup>
+  <Accordion title="What happens if no resolution is possible?">
+    If the event in question did not occur during the market's time window, or if the resolution criteria cannot be evaluated against any available sources, the market settles as "no resolution." All open positions are refunded in full. No fees are charged on no-resolution markets.
+  </Accordion>
+  <Accordion title="What if the outcome is genuinely ambiguous?">
+    Ambiguous outcomes produce low agent confidence, which pushes the resolution below the consensus threshold and triggers the adversarial appeals path automatically. If the appeals path also cannot reach a clear determination, the team reviews the criteria and may settle the market as "no resolution" or issue a clarified determination with a written rationale.
+  </Accordion>
+  <Accordion title="What if a whitelisted source goes offline before resolution?">
+    If a source becomes unreachable at resolution time, agents fall back to available sources in the same category. If no sources in the category are reachable, resolution waits until connectivity is restored. The market stays in `resolving` state; trading remains closed. You can monitor source and oracle status at the [status page](https://blockforecast.io/status).
+  </Accordion>
+  <Accordion title="What if the market creator wrote bad resolution criteria?">
+    Creators are responsible for writing clear, verifiable resolution criteria against approved sources. Markets with ambiguous or unverifiable criteria are flagged at review before going live. If a criteria problem is discovered after launch, the market may be voided and all positions refunded.
+  </Accordion>
+  <Accordion title="What if two outcomes are both valid interpretations?">
+    When two interpretations are both defensible, the agents will disagree, confidence will fall below threshold, and the resolution escalates automatically. The adversarial review evaluates which interpretation is most consistent with the written criteria and the cited sources. If no clear winner emerges, the team issues a final determination with written rationale.
+  </Accordion>
+  <Accordion title="What happens during a platform incident that affects resolution?">
+    If a platform incident affects the resolution engine, affected markets stay in `resolving` state until the incident is resolved. All incidents are posted to the [status page](https://blockforecast.io/status) with real-time updates. No market settles during an active incident.
+  </Accordion>
+</AccordionGroup>
+
+<CardGroup cols={2}>
+  <Card title="AI oracle" icon="robot" href="/how-it-works/ai-oracle">
+    Understand the multi-agent architecture behind every resolution.
+  </Card>
+  <Card title="Transparency" icon="eye" href="/how-it-works/transparency">
+    View public platform metrics, oracle accuracy stats, and the incident log.
+  </Card>
+</CardGroup>

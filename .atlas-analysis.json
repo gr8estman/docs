@@ -1,0 +1,95 @@
+{
+  "projectType": "saas",
+  "projectName": "BlockForecast",
+  "projectDescription": "BlockForecast is a crypto prediction market platform where users can trade on real-world events, creators can launch their own markets and earn fees, and developers can integrate via a public REST API with AI-powered oracle resolution.",
+  "theme": "luma",
+  "primaryColor": "#04ddce",
+  "lightColor": "#fafafa",
+  "darkColor": "#0c0c0c",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "how-to-deposit",
+              "what-is-a-prediction-market",
+              "5-minute-bitcoin-markets"
+            ]
+          },
+          {
+            "group": "Creator Program",
+            "pages": [
+              "creators/overview",
+              "creators/apply",
+              "creators/create-a-market",
+              "creators/earn-fees"
+            ]
+          },
+          {
+            "group": "How It Works",
+            "pages": [
+              "how-it-works/ai-oracle",
+              "how-it-works/resolution-policy",
+              "how-it-works/transparency"
+            ]
+          },
+          {
+            "group": "Legal & Support",
+            "pages": [
+              "legal/faq",
+              "legal/are-prediction-markets-legal",
+              "legal/terms",
+              "legal/privacy"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Developers",
+        "groups": [
+          {
+            "group": "API",
+            "pages": [
+              "developers/quickstart",
+              "developers/authentication",
+              "developers/public-api",
+              "developers/rate-limits"
+            ]
+          },
+          {
+            "group": "x402 Agent API",
+            "pages": [
+              "developers/x402-overview",
+              "developers/x402-create-market"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "User-created prediction markets on any topic",
+    "AI oracle resolution with multi-agent consensus",
+    "Creator program with 0.5% fee on every trade",
+    "5-minute Bitcoin prediction markets",
+    "In-app crypto bridge for USDC deposits (Base L2)",
+    "Public REST API with API key authentication",
+    "x402 micropayment agent API ($1 per market creation)",
+    "Real-time oracle dashboard and platform transparency metrics",
+    "Geo-availability for Nigeria, Ghana, Kenya, and more",
+    "Comparison-friendly positioning vs Polymarket and Kalshi"
+  ],
+  "publicApiSurface": [
+    "GET /markets — list active prediction markets",
+    "POST /markets — create a new market (creator access required)",
+    "GET /markets/:id — fetch market details",
+    "GET /markets/:id/trades — list trades for a market",
+    "POST /x402/markets — create a market via x402 micropayment ($1)",
+    "API key authentication via Authorization header",
+    "Rate limit: 60 requests/min (default)"
+  ]
+}

@@ -1,0 +1,155 @@
+---
+title: "API Rate Limits: Quotas, Headers, and Backoff"
+description: "BlockForecast enforces 60 requests per minute per API key. Learn how to read rate-limit headers, handle 429 errors gracefully, and request a higher quota."
+---
+
+Every API key on BlockForecast is subject to a default rate limit of **60 requests per minute**. The limit is enforced per key on a rolling 60-second window — it is not a fixed-clock reset. If you exceed the limit, the API returns `429 Too Many Requests` and you must wait before retrying. This page explains how to read the rate-limit headers included on every response, how to implement exponential backoff, and how to stay within the default quota for common workloads.
+
+## Rate-limit headers
+
+Every API response includes three headers that tell you your current quota status:
+
+| Header | Type | Description |
+|---|---|---|
+| `X-RateLimit-Limit` | integer | Your total allowed requests per 60-second window (default: `60`). |
+| `X-RateLimit-Remaining` | integer | Requests remaining in the current window. |
+| `X-RateLimit-Reset` | Unix timestamp | The time (in seconds since epoch) when the window resets and `X-RateLimit-Remaining` returns to `X-RateLimit-Limit`. |
+
+Example response headers:
+
+```http
+HTTP/2 200
+X-RateLimit-Limit: 60
+X-RateLimit-Remaining: 42
+X-RateLimit-Reset: 1745001060
+Content-Type: application/json
+```
+
+## When you exceed the limit
+
+If `X-RateLimit-Remaining` reaches `0`, the next request returns:
+
+```http
+HTTP/2 429 Too Many Requests
+X-RateLimit-Limit: 60
+X-RateLimit-Remaining: 0
+X-RateLimit-Reset: 1745001060
+Retry-After: 23
+Content-Type: application/json
+```
+
+```json
+{
+  "error": "RATE_LIMIT_EXCEEDED",
+  "message": "You have exceeded the rate limit of 60 requests/min. Retry after the Retry-After interval.",
+  "retryAfter": 23
+}
+```
+
+The `Retry-After` header tells you exactly how many seconds to wait before the window resets.
+
+## Handling 429s: exponential backoff
+
+Immediately retrying after a `429` will only trigger another `429`. Use exponential backoff with jitter:
+
+<CodeGroup>
+
+```python Python
+import os, time, random, requests
+
+API_KEY = os.environ["BLOCKFORECAST_API_KEY"]
+BASE_URL = "https://blockforecast.io/api/v2"
+
+def get_with_backoff(path: str, params: dict = None, max_retries: int = 5):
+    url = f"{BASE_URL}{path}"
+    headers = {"X-API-Key": API_KEY}
+
+    for attempt in range(max_retries):
+        resp = requests.get(url, headers=headers, params=params)
+
+        if resp.status_code == 429:
+            retry_after = int(resp.headers.get("Retry-After", 1))
+            # Add jitter: wait retry_after seconds + up to 1s random
+            wait = retry_after + random.random()
+            print(f"Rate limited. Waiting {wait:.1f}s (attempt {attempt + 1}/{max_retries})")
+            time.sleep(wait)
+            continue
+
+        resp.raise_for_status()
+        return resp.json()
+
+    raise Exception("Max retries exceeded after repeated 429 responses")
+
+markets = get_with_backoff("/public/markets", params={"status": "active"})
+```
+
+```typescript JavaScript / TypeScript
+const API_KEY = process.env.BLOCKFORECAST_API_KEY!;
+const BASE_URL = "https://blockforecast.io/api/v2";
+
+async function getWithBackoff(
+  path: string,
+  params?: Record<string, string>,
+  maxRetries = 5
+): Promise<unknown> {
+  const url = new URL(`${BASE_URL}${path}`);
+  if (params) {
+    Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+  }
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    const resp = await fetch(url.toString(), {
+      headers: { "X-API-Key": API_KEY },
+    });
+
+    if (resp.status === 429) {
+      const retryAfter = parseInt(resp.headers.get("Retry-After") ?? "1", 10);
+      const jitter = Math.random();
+      const wait = (retryAfter + jitter) * 1000;
+      console.log(`Rate limited. Waiting ${(wait / 1000).toFixed(1)}s (attempt ${attempt + 1}/${maxRetries})`);
+      await new Promise((resolve) => setTimeout(resolve, wait));
+      continue;
+    }
+
+    if (!resp.ok) throw new Error(`API error: ${resp.status}`);
+    return resp.json();
+  }
+
+  throw new Error("Max retries exceeded after repeated 429 responses");
+}
+
+const markets = await getWithBackoff("/public/markets", { status: "active" });
+```
+
+</CodeGroup>
+
+<Tip>
+  Read `X-RateLimit-Remaining` proactively on every response and slow down when it approaches zero — don't wait for a `429` to trigger your backoff logic.
+</Tip>
+
+## Tips for staying within the limit
+
+**Cache responses locally.** Market state does not change on every tick. For most read workloads, caching `GET /markets` for 5–10 seconds and individual market details for 1–2 seconds dramatically reduces API calls without meaningfully staling your data.
+
+**Batch reads with pagination.** Rather than making one request per market, use the `limit` parameter on `GET /markets` to fetch up to 100 markets in a single call. Then page through with `offset` as needed.
+
+**Use the real-time feed for high-frequency data.** If you need market prices at sub-second latency, the x402 feed endpoint (`GET /api/v2/x402/feed`, $0.001/call) is designed for that use case and does not count against your REST rate limit.
+
+**Deduplicate inflight requests.** In async or multi-threaded code, use a simple in-memory cache or request-deduplication layer to prevent the same resource from being fetched concurrently by multiple coroutines or threads.
+
+**Avoid polling loops with short intervals.** A loop that calls `GET /markets/:id` every second will exhaust your quota in one minute. Use a minimum 5-second poll interval for market state, or switch to the WebSocket broadcaster for real-time updates.
+
+## Request a higher rate limit
+
+If your use case requires more than 60 requests per minute — for example, a trading desk pulling tick-level data or an arbitrage bot running across hundreds of markets simultaneously — you can request a higher quota.
+
+Email [support@blockforecast.io](mailto:support@blockforecast.io) with:
+- Your wallet address (the one attached to your API key)
+- A brief description of your use case
+- The approximate request rate you need
+
+Higher-limit keys are provisioned manually and are typically turned around within one business day.
+
+<Note>
+  x402 pay-per-request endpoints (`/api/v2/x402/*`) are not subject to the same per-minute quota. Each call is independently metered by payment, so there is no burst limit — you can make as many calls as you can pay for.
+</Note>

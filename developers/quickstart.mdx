@@ -1,0 +1,126 @@
+---
+title: "Developer Quickstart: BlockForecast REST API"
+description: "Make your first BlockForecast API request in under five minutes. Get an API key, list active markets, and explore the full developer surface."
+---
+
+The BlockForecast REST API gives you programmatic access to prediction markets — list and filter markets, stream trade data, place trades, and create your own markets with creator approval. The base URL for all v2 endpoints is `https://blockforecast.io/api/v2`. Authentication uses a short-lived API key that you obtain by signing a message with your wallet. This guide walks you through every step from zero to your first successful response.
+
+<Steps>
+  <Step title="Get an API key">
+    API keys are issued by signing a challenge message with your Ethereum wallet. You do not need to create an account — your wallet address is your identity.
+
+    ```bash curl
+    curl -X POST https://blockforecast.io/api/v2/auth/token \
+      -H "Content-Type: application/json" \
+      -d '{
+        "address": "0xYourWalletAddress",
+        "message": "BlockForecast auth – 1745000000",
+        "signature": "0xYourSignedMessage"
+      }'
+    ```
+
+    The response contains your API key:
+
+    ```json
+    {
+      "apiKey": "bf_live_xxxxxxxxxxxxxxxxxxxx"
+    }
+    ```
+
+    Store this key in an environment variable (`BLOCKFORECAST_API_KEY`) and never commit it to source control. See [Authentication](/developers/authentication) for the full signing flow and error reference.
+  </Step>
+
+  <Step title="Make your first request">
+    With your key in hand, call `GET /api/v2/public/markets` to fetch the current list of active prediction markets.
+
+    <CodeGroup>
+
+    ```bash curl
+    curl https://blockforecast.io/api/v2/public/markets \
+      -H "X-API-Key: $BLOCKFORECAST_API_KEY"
+    ```
+
+    ```python Python
+    import os
+    import requests
+
+    resp = requests.get(
+        "https://blockforecast.io/api/v2/public/markets",
+        headers={"X-API-Key": os.environ["BLOCKFORECAST_API_KEY"]},
+    )
+    resp.raise_for_status()
+    markets = resp.json()
+    print(f"Found {markets['total']} markets")
+    ```
+
+    ```typescript JavaScript / TypeScript
+    const resp = await fetch("https://blockforecast.io/api/v2/public/markets", {
+      headers: {
+        "X-API-Key": process.env.BLOCKFORECAST_API_KEY!,
+      },
+    });
+
+    if (!resp.ok) throw new Error(`API error: ${resp.status}`);
+    const markets = await resp.json();
+    console.log(`Found ${markets.total} markets`);
+    ```
+
+    </CodeGroup>
+
+    <Tip>
+      You can filter results with query parameters: `?status=active&category=crypto&limit=10`. See [Public API](/developers/public-api) for the full parameter reference.
+    </Tip>
+  </Step>
+
+  <Step title="Parse the response">
+    A successful `GET /markets` response looks like this:
+
+    ```json
+    {
+      "markets": [
+        {
+          "id": "mkt_01hx9z3kqb8v2wyn4rfpje5d7t",
+          "slug": "btc-above-150k-dec-2026",
+          "question": "Will BTC close above $150k on Dec 31, 2026?",
+          "category": "crypto",
+          "status": "active",
+          "yesPrice": 0.34,
+          "noPrice": 0.66,
+          "volume": 18420.50,
+          "liquidity": 4100.00,
+          "resolveDate": "2026-12-31T23:59:59Z",
+          "createdAt": "2026-01-15T10:22:00Z"
+        }
+      ],
+      "total": 142,
+      "limit": 20,
+      "offset": 0
+    }
+    ```
+
+    Each market object includes the current LSMR prices (`yesPrice`, `noPrice`), aggregate volume, available liquidity, and the resolution date. Prices are expressed as probabilities between 0 and 1 — a `yesPrice` of `0.34` means the market currently prices the YES outcome at 34 cents per share.
+
+    <Note>
+      All monetary values in the API are denominated in USDC (6-decimal precision on-chain, returned as floating-point USD in the REST API).
+    </Note>
+  </Step>
+
+  <Step title="Next steps">
+    You have the basics working. Here is where to go next depending on what you want to build:
+
+    <CardGroup cols={2}>
+      <Card title="Public API reference" icon="book-open" href="/developers/public-api">
+        Full endpoint reference with request params, response fields, and multi-language examples for every route.
+      </Card>
+      <Card title="Authentication" icon="key" href="/developers/authentication">
+        Wallet-signature auth flow, error codes, key rotation, and security best practices.
+      </Card>
+      <Card title="Rate limits" icon="gauge" href="/developers/rate-limits">
+        Default limits, 429 handling, exponential backoff examples, and how to request a higher limit.
+      </Card>
+      <Card title="x402 Agent API" icon="bolt" href="/developers/x402-overview">
+        Create markets from an autonomous AI agent — no API key required, just $1 USDC per market via x402.
+      </Card>
+    </CardGroup>
+  </Step>
+</Steps>

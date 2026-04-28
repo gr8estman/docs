@@ -1,0 +1,115 @@
+---
+title: "How to Create a Prediction Market on BlockForecast"
+description: "Step-by-step guide to launching a prediction market after creator approval. Covers the creation form, writing resolution criteria, and what topics perform best."
+---
+
+Once you have creator access, publishing a market takes under two minutes. You write a question in plain English, the AI rewrites it for clarity and generates resolution criteria, you confirm or edit, and the market is live. The LSMR automated market maker provides instant liquidity from the moment you launch — you don't need to find a counter-party. Every trade on your market earns you 0.5% in real time for as long as the market is open.
+
+<Note>
+  You must have approved creator access before you can reach the market creation form. If you haven't applied yet, start at [Apply for creator access](/creators/apply).
+</Note>
+
+## What makes a good market
+
+Before opening the form, it's worth knowing what the AI quality gate looks for. A strong market has four properties:
+
+- **Specific.** "Will Arsenal beat Chelsea on 5 May at 20:00 UTC?" not "Will Arsenal do well?"
+- **Time-bounded.** An explicit resolution moment — not "this year" or "soon."
+- **Source-citable.** There must be a public, authoritative source the oracle can read at resolution — a sports API, CoinGecko, Pyth, AP News, an official election body.
+- **Binary or small-N outcome.** Yes/no, or a fixed set of named outcomes (A wins / Draw / B wins).
+
+Markets that fail one or more of these properties get flagged by the AI with a suggested rewrite. The same criteria that get markets approved also drive trading volume — clear, specific markets attract more confident traders.
+
+## Step-by-step: creating a market
+
+<Steps>
+  <Step title="Open the market creation form">
+    Sign in and navigate to [/create](https://blockforecast.io/create). The form is only visible to accounts with approved creator status.
+  </Step>
+  <Step title="Write your question">
+    Type the question in the **Title** field in plain English. Keep it under 60 characters if possible — the question appears prominently on market cards and in share previews, so shorter is better. Templates that work well:
+
+    - `Will [subject] [verb] by [date/time]?`
+    - `Will [price/stat] be above [threshold] at [time]?`
+    - `Who will win [event]: [A] / [B] / [C]?`
+
+    The AI will rewrite long or ambiguous questions automatically, but starting clean speeds up the process and gives you more control over the final wording.
+  </Step>
+  <Step title="Add a description">
+    The **Description** field is optional but recommended. Use it to add context that doesn't fit in the title: which competition, which exchange's price feed, which official source will be used, or any clarifying scope. A good description reduces trader confusion and support requests.
+  </Step>
+  <Step title="Review AI-generated resolution criteria">
+    The AI proposes:
+    - The authoritative sources it will consult at resolution
+    - Tie-breaker rules (e.g., what happens if a match is postponed)
+    - Edge case handling (e.g., what happens if an exchange goes down at the resolution moment)
+
+    Read these carefully. **Resolution criteria are immutable once trading starts** — that's a fairness commitment to traders. You can edit them before confirming, but not after. If the proposed criteria don't match your intent, rewrite them now.
+  </Step>
+  <Step title="Set the resolution date">
+    Pick the exact moment when the market should resolve. Match it to the actual event:
+    - **Sports:** kickoff time. Trading closes at kickoff; the market resolves a few minutes after the final whistle.
+    - **Crypto prices:** a specific UTC timestamp. The Pyth or CoinGecko snapshot at that moment is the answer.
+    - **Politics / news:** the event itself plus a small buffer for sources to publish (typically 24–48 hours).
+    - **Long-running questions:** the deadline by which the answer must be known.
+  </Step>
+  <Step title="Choose a category">
+    Select the category that best matches your topic. Categories affect how the market is surfaced in browse and search views. Available categories include crypto, sports, politics, tech, culture, and entertainment.
+  </Step>
+  <Step title="Confirm and launch">
+    Review everything — title, description, resolution criteria, resolution date, category. When you're satisfied, confirm. The market goes live immediately and is tradeable from that moment.
+  </Step>
+</Steps>
+
+## Topic categories and what performs well
+
+Different topics draw different trader audiences. Here's what tends to generate strong volume by category:
+
+<AccordionGroup>
+  <Accordion title="Crypto prices and on-chain events">
+    Price prediction markets are the highest-volume category on BlockForecast. BTC and ETH dominate, but altcoin markets — especially around token launches, protocol upgrades, or listing events — often outperform on a per-market basis because competition from other creators is lower. Pyth and CoinGecko provide real-time oracle feeds for resolution.
+  </Accordion>
+  <Accordion title="Sports">
+    The oracle reads sports APIs, which means you can create markets on virtually any match in any covered league. The highest-volume sports markets are typically major football (soccer) fixtures — Premier League, Champions League, La Liga — but niche leagues (Nigerian Premier League, Argentinian Primera División, esports tournaments) are underserved and often yield higher creator returns relative to the effort to create them.
+  </Accordion>
+  <Accordion title="Politics and geopolitics">
+    Election outcomes, official appointments, legislative votes, and international agreements. These markets attract engaged, high-conviction traders. Resolution requires a public official source — election authority results, official government announcements, or reputable news wires.
+  </Accordion>
+  <Accordion title="Tech and crypto launches">
+    Token launches, mainnet launches, product releases, IPOs, and DAO votes. These work best when the resolution event is specific — "Will [project] launch mainnet by [date]?" rather than "Will [project] succeed?"
+  </Accordion>
+  <Accordion title="Culture and entertainment">
+    Awards (Grammys, Oscars, BAFTAs), chart positions, box office rankings, album releases. The oracle resolves these against official public sources — Billboard, Academy, box office databases. Lower average volume per market, but strong engagement from creator audiences with a following in those areas.
+  </Accordion>
+</AccordionGroup>
+
+## Writing clear resolution criteria
+
+Resolution criteria are the most important thing you write. Traders decide how much to trade based on how confident they are in the resolution — ambiguous criteria suppress volume.
+
+<Tip>
+  Write resolution criteria as if explaining them to someone who disagrees with you about the outcome. If the criteria leave room for argument, rewrite them.
+</Tip>
+
+**Good resolution criteria:**
+- "Resolves YES if the official final score published by the Premier League at [premierleague.com/results](https://www.premierleague.com/results) shows Arsenal as the winner of this fixture. Resolves NO otherwise, including draws."
+- "Resolves YES if the BTC/USD price on CoinGecko at exactly 2026-12-31 23:59:59 UTC is at or above $100,000. Resolves NO if it is below $100,000."
+
+**Weak resolution criteria:**
+- "Resolves YES if Arsenal wins." (Which source? What counts as a win in extra time?)
+- "Resolves YES if Bitcoin is doing well by year end." (No threshold, no source, no timestamp.)
+
+Specify: the source, the exact timestamp or trigger event, how ties or edge cases are handled, and what "NO" means explicitly.
+
+## Common rejection reasons
+
+<Warning>
+  The AI quality gate rejects markets that fail these checks. A rejection is not permanent — fix the issue and resubmit.
+</Warning>
+
+- **Ambiguous wording** — "Did the team perform well?" has no objective answer.
+- **No clear source** — "Will my friend get the job?" can't be resolved from public data.
+- **Insider information risk** — markets that trade well only if you have non-public information are rejected outright.
+- **Person-specific private life** — markets about a named individual's personal choices or private events.
+- **Already-known outcome** — the answer is already public at creation time.
+- **No resolution moment** — "Will X eventually happen?" with no deadline.

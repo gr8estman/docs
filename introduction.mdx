@@ -1,0 +1,69 @@
+---
+title: "BlockForecast: Permissionless Crypto Prediction Markets"
+description: "BlockForecast is a prediction market platform on Base L2. Trade on real-world outcomes, create your own markets and earn 0.5% per trade, resolved by AI oracle."
+---
+
+BlockForecast is a crypto prediction market platform built on Base L2. You trade on the outcome of real-world events — crypto prices, sports results, elections, tech news — using USDC as the settlement currency. What sets BlockForecast apart from Polymarket and Kalshi is the open creator program: on those platforms, only internal teams can list markets. On BlockForecast, any approved user can create a market and earn 0.5% on every trade it generates. Markets resolve automatically through a multi-agent AI oracle that reads authoritative sources, votes with confidence scores, and reaches consensus without human adjudication.
+
+## What you can do on BlockForecast
+
+<CardGroup cols={2}>
+  <Card title="Trade prediction markets" icon="chart-line" href="/what-is-a-prediction-market">
+    Buy YES or NO shares on any active market. Prices between $0 and $1 reflect the crowd's probability estimate. Winning shares pay out $1 each.
+  </Card>
+  <Card title="Create your own markets" icon="plus-circle" href="/creators/overview">
+    Apply for creator access and list your own markets on any topic with a clear, verifiable outcome. Earn 0.5% of every trade.
+  </Card>
+  <Card title="Trade 5-minute Bitcoin markets" icon="bitcoin" href="/5-minute-bitcoin-markets">
+    BlockForecast's flagship short-duration product: BTC, ETH, and SOL up-or-down on rolling 5-minute and 15-minute schedules.
+  </Card>
+  <Card title="Build with the API" icon="code" href="/developers/quickstart">
+    Create and query markets programmatically via the REST API or the x402 agent API — one HTTP call, $1 per market.
+  </Card>
+</CardGroup>
+
+## How BlockForecast works
+
+Every market on BlockForecast is a binary (YES/NO) or multi-outcome contract. You buy shares in the outcome you believe is correct. The share price — a number between $0 and $1 — reflects the market's collective probability estimate at any moment. If you buy 100 YES shares at $0.60 and the event resolves YES, each share pays $1: your $60 turns into $100.
+
+Markets resolve through BlockForecast's **multi-agent AI oracle**. Multiple independent AI agents read designated authoritative sources, vote on the outcome with confidence scores, and settle the market automatically — typically within minutes of resolution criteria being met. You can watch live agent voting on the [Oracle Dashboard](https://blockforecast.io/oracle).
+
+Trading is denominated in **USDC on Base L2**. Base is Coinbase's Layer 2 network: transactions confirm in seconds and cost fractions of a cent. You fund your account via the in-app bridge (accepts any crypto on any chain) or by withdrawing USDC directly from a CEX.
+
+## How BlockForecast compares to Polymarket and Kalshi
+
+<Tabs>
+  <Tab title="Market creation">
+    Polymarket and Kalshi restrict market creation to their internal teams. On BlockForecast, any approved user can create markets. Submit an application — it's reviewed within 24 hours — and you gain access to the market creation interface.
+  </Tab>
+  <Tab title="Resolution">
+    Polymarket uses a human-driven UMA optimistic oracle with a dispute window. Kalshi relies on an internal team under CFTC oversight. BlockForecast uses a multi-agent AI consensus system that resolves markets automatically without a manual adjudication step.
+  </Tab>
+  <Tab title="Creator earnings">
+    BlockForecast pays market creators **0.5% of every trade** in real time. Polymarket and Kalshi have no equivalent creator fee structure — those platforms keep all trading fees.
+  </Tab>
+  <Tab title="Settlement">
+    All three platforms use stablecoins for settlement. BlockForecast settles in USDC on Base L2, which means near-instant confirmations and near-zero gas costs.
+  </Tab>
+</Tabs>
+
+## Get started
+
+<CardGroup cols={2}>
+  <Card title="How to deposit" icon="wallet" href="/how-to-deposit">
+    Fund your account using the in-app bridge from any crypto, or withdraw USDC directly from Binance, OKX, Bybit, or another CEX that supports Base.
+  </Card>
+  <Card title="What is a prediction market?" icon="circle-question" href="/what-is-a-prediction-market">
+    New to prediction markets? This plain-English guide explains binary markets, how prices reflect probability, and how resolution works.
+  </Card>
+  <Card title="5-minute Bitcoin markets" icon="clock" href="/5-minute-bitcoin-markets">
+    The fastest tradeable product on BlockForecast. Rolling 5-minute and 15-minute BTC, ETH, and SOL up-or-down markets, resolved via Pyth oracle.
+  </Card>
+  <Card title="Creator Program" icon="star" href="/creators/overview">
+    Apply for creator access, create markets on any topic, and earn 0.5% of every trade your markets generate — paid out in real time.
+  </Card>
+</CardGroup>
+
+<Note>
+  BlockForecast is available globally, but prediction market legality varies by country. Check the [country-by-country legal breakdown](https://blockforecast.io/are-prediction-markets-legal) before trading. The [Terms of Service](/legal/terms) list current geo-restrictions.
+</Note>
