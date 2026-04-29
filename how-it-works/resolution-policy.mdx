@@ -44,7 +44,7 @@ Approved source categories are:
 
 ## Dispute path
 
-If you believe a market was resolved incorrectly, you can file an appeal during the appeal window that opens immediately after resolution commits.
+If you believe a market was resolved incorrectly, you can file an appeal during the **24-hour appeal window** that opens the moment consensus commits. Payouts are held in escrow for the full window and release automatically once it expires (or sooner if the appeal is reviewed and dismissed).
 
 <Steps>
   <Step title="File an appeal">
@@ -91,10 +91,10 @@ The platform team can step in and apply a manual override in a small set of defi
 
 <AccordionGroup>
   <Accordion title="What happens if no resolution is possible?">
-    If the event in question did not occur during the market's time window, or if the resolution criteria cannot be evaluated against any available sources, the market settles as "no resolution." All open positions are refunded in full. No fees are charged on no-resolution markets.
+    If the event in question did not occur during the market's time window, or if the resolution criteria cannot be evaluated against any available sources, the market settles as **VOID** (the engine's `void` outcome). All open positions are refunded in full. No fees are charged on voided markets.
   </Accordion>
   <Accordion title="What if the outcome is genuinely ambiguous?">
-    Ambiguous outcomes produce low agent confidence, which pushes the resolution below the consensus threshold and triggers the adversarial appeals path automatically. If the appeals path also cannot reach a clear determination, the team reviews the criteria and may settle the market as "no resolution" or issue a clarified determination with a written rationale.
+    Ambiguous outcomes produce low agent confidence, which pushes the resolution below the consensus threshold and triggers the adversarial appeals path automatically. If the appeals path also cannot reach a clear determination, the team reviews the criteria and may settle the market as **VOID** (with positions refunded) or issue a clarified determination with a written rationale.
   </Accordion>
   <Accordion title="What if a whitelisted source goes offline before resolution?">
     If a source becomes unreachable at resolution time, agents fall back to available sources in the same category. If no sources in the category are reachable, resolution waits until connectivity is restored. The market stays in `resolving` state; trading remains closed. You can monitor source and oracle status at the [status page](https://blockforecast.io/status).

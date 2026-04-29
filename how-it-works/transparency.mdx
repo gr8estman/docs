@@ -7,7 +7,7 @@ Trust in a prediction market depends entirely on trust in how it resolves. Block
 
 ## What is public
 
-Every data point listed below is accessible without logging in.
+The data points below are accessible without logging in, served via the oracle dashboard at [blockforecast.io/oracle](https://blockforecast.io/oracle) and the public REST API.
 
 <CardGroup cols={2}>
   <Card title="Oracle voting records" icon="check-to-slot">
@@ -20,15 +20,19 @@ Every data point listed below is accessible without logging in.
     Cumulative and per-market trading volume in USDC. Updated in real time.
   </Card>
   <Card title="Market counts" icon="grid">
-    Total markets created, active markets, settled markets, and no-resolution markets — broken down by category and time period.
+    Total markets created, active markets, settled markets, and voided markets — broken down by category and time period.
   </Card>
   <Card title="Resolution speed" icon="clock">
-    Median and p95 resolution time by category. Lets you verify that the "under 5 minutes" claim holds in practice.
+    Median and p95 consensus time by category, plus the 24-hour appeal-window distribution.
   </Card>
   <Card title="Incident log" icon="triangle-exclamation">
     Every platform incident, its impact on resolution or trading, and the post-incident write-up. Nothing is redacted.
   </Card>
 </CardGroup>
+
+<Note>
+  Real-time **solvency snapshots** (vault USDC balance vs total user balances) run every 60 seconds in the engine but the raw endpoint is currently **admin-gated** — public summaries are surfaced via the dashboard, the underlying audit trail is not yet exposed unauthenticated. This is a planned upgrade for the public transparency surface.
+</Note>
 
 ## How to read the oracle dashboard
 

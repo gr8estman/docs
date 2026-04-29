@@ -3,7 +3,7 @@ title: "AI Oracle: How BlockForecast Resolves Markets"
 description: "BlockForecast resolves markets with a multi-agent AI oracle. Seven agents vote with confidence scores, reach weighted consensus, and self-calibrate over time."
 ---
 
-BlockForecast does not rely on human voters, a dispute window, or internal staff to decide market outcomes. Instead, every market that closes enters an automated resolution pipeline where seven independent AI agents read authoritative sources in parallel, emit confidence-weighted votes, and reach consensus — typically in under five minutes. The system is self-improving: each agent's historical accuracy in a given category feeds back into how much weight its vote carries on future resolutions. No single agent can swing an outcome, and every step of the process is logged publicly on the oracle dashboard.
+BlockForecast does not rely on human voters, internal staff, or a slow dispute window to decide market outcomes. Every market that closes enters an automated resolution pipeline where seven independent AI agents read authoritative sources in parallel, emit confidence-weighted votes, and reach consensus. Most resolutions commit in **two to seven minutes** depending on whether tier-1 unanimity short-circuits the deeper agents (each agent has a 90-second per-call budget, run in parallel batches of three). After consensus, payouts are held for a **24-hour appeal window** before they release — see [Resolution policy](/how-it-works/resolution-policy) for that part. The system is self-improving: agent accuracy in a given category is recalculated automatically every 50 resolutions and feeds back into how much weight each agent's vote carries on future markets. No single agent can swing an outcome, and every step is logged publicly on the oracle dashboard.
 
 ## How the oracle works
 
@@ -27,7 +27,7 @@ BlockForecast does not rely on human voters, a dispute window, or internal staff
 
 ## Self-improving calibration
 
-The oracle maintains a calibration table that tracks each agent's resolution accuracy, broken down by market category. After every committed resolution, that agent's record updates. Agents that are accurate on a category gain weight in future votes; agents whose accuracy drifts lose it. This means the system gets more reliable over time without any manual tuning — the feedback loop is automatic.
+The oracle maintains a calibration table that tracks each agent's resolution accuracy, broken down by market category. After every committed resolution, that agent's record is appended; recalibration runs in batches every 50 resolutions and updates the per-category weights. Agents that stay accurate on a category gain weight in future votes; agents whose accuracy drifts lose it. The feedback loop is automatic — no manual tuning, no human in the loop.
 
 <Note>
   You can view each agent's live calibration score, running accuracy by category, and voting history on the public [oracle dashboard](https://blockforecast.io/oracle). No account required.
@@ -40,7 +40,7 @@ Sources are selected and frozen at market creation. The agents at resolution che
 | Category | Sources |
 |---|---|
 | Sports | API-Football, ESPN, league official sites |
-| Crypto prices | Pyth Hermes, CoinGecko, Coinbase API |
+| Crypto prices | Pyth Hermes, CoinGecko, Binance |
 | News / politics | AP News, Reuters, web search, official government sources |
 | Tech / culture | Web search, official announcements, primary sources |
 
@@ -77,7 +77,7 @@ If the primary consensus round falls below the confidence threshold, or if you b
 |---|---|
 | UMA optimistic oracle (Polymarket) | ~2 hours minimum (challenge window) |
 | Human staff (Kalshi) | Minutes to hours, varies by category |
-| Multi-agent AI consensus (BlockForecast) | Under 5 minutes in most cases |
+| Multi-agent AI consensus (BlockForecast) | 2–7 min consensus, +24h appeal window |
 
 ## Common questions
 

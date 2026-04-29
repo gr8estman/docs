@@ -96,7 +96,7 @@ Returns a paginated, filterable list of prediction markets.
 <Tabs>
   <Tab title="curl">
     ```bash
-    curl "https://blockforecast.io/api/v2/public/markets?status=active&category=crypto&limit=5" \
+    curl "https://blockforecast.io/api/v2/public/markets?status=open&category=crypto&limit=5" \
       -H "X-API-Key: $BLOCKFORECAST_API_KEY"
     ```
   </Tab>
@@ -119,7 +119,7 @@ Returns a paginated, filterable list of prediction markets.
   <Tab title="TypeScript">
     ```typescript
     const resp = await fetch(
-      "https://blockforecast.io/api/v2/public/markets?status=active&category=crypto&limit=5",
+      "https://blockforecast.io/api/v2/public/markets?status=open&category=crypto&limit=5",
       { headers: { "X-API-Key": process.env.BLOCKFORECAST_API_KEY! } }
     );
     if (!resp.ok) throw new Error(`API error: ${resp.status}`);
