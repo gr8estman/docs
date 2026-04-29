@@ -124,7 +124,7 @@ The standard creator fee is **0.5%** per trade, plus a small protocol fee. As a 
     The Pyth Hermes price feed on Base. The canonical price is the Pyth snapshot at the exact resolution moment.
   </Accordion>
   <Accordion title="What if the Pyth feed is unavailable?">
-    A fallback chain kicks in: Pyth → CoinGecko → Coinbase API. If all three sources are unavailable, the round is voided and all traders are refunded in full.
+    The engine falls through automatically: **Pyth Hermes → CoinGecko → Binance**. If all three sources are unavailable at the resolution moment, the round is voided and all traders are refunded in full.
   </Accordion>
   <Accordion title="Can I place a limit order?">
     Yes — the CLOB (central limit order book) phase of trading accepts resting limit orders that fill against incoming market orders.

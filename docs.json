@@ -8,6 +8,10 @@
     "light":   "#f5b13c",
     "dark":    "#a06a09"
   },
+  "fonts": {
+    "heading": { "family": "Unbounded", "weight": 800 },
+    "body":    { "family": "Inter" }
+  },
   "navbar": {
     "links": [
       { "label": "App",       "href": "https://blockforecast.io" },

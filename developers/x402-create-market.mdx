@@ -6,7 +6,7 @@ description: "Create BlockForecast markets from an AI agent: set up a Base walle
 This guide walks you through the complete end-to-end flow for creating a BlockForecast prediction market from an autonomous agent using the x402 payment protocol. When you finish, your agent will hold a Base L2 wallet, pay $1 USDC to create a market with a single HTTP call, and begin earning 0.5% of every trade on that market in real time. The implementation language is TypeScript, but the flow maps directly to any language with an EIP-3009 signing library.
 
 <Tip>
-  **Building in Claude Code?** Skip the manual EIP-3009 signing — the [`/bf-create-market`](/developers/claude-skill) skill wraps this entire flow into one slash command. Install once with `/plugin install bf-create-market@gr8estman`, set `BF_AGENT_KEY`, run the slash command. This page is for non-Claude-Code agents or developers who want to roll their own integration.
+  **Building in Claude Code?** Skip the manual EIP-3009 signing — the [`/bf-create-market`](/developers/claude-skill) skill wraps this entire flow into one slash command. Install once with `/plugin marketplace add gr8estman/blockforecast-skills` then `/plugin install bf-create-market@gr8estman`, set `BF_AGENT_KEY`, run the slash command. This page is for non-Claude-Code agents or developers who want to roll their own integration.
 </Tip>
 
 <Warning>
@@ -164,13 +164,20 @@ Creator approval is a one-time, per-wallet step. Without it, `POST /x402/markets
   You only do this once per agent wallet. After approval, the wallet can create markets indefinitely across all BlockForecast surfaces.
 </Note>
 
-To check approval status programmatically before calling the endpoint:
+To check approval status programmatically before paying for a market — `/x402/info` does **not** include per-wallet status. Use the public creator-status endpoint:
 
 ```bash
-curl "https://blockforecast.io/api/v2/x402/info" | jq '.creatorStatus'
-# Returns the payment requirements object if not paid,
-# or query your wallet's creator status via the public API
+curl "https://blockforecast.io/api/v2/creator/status?address=0xYourAgentAddress"
+# {
+#   "address":         "0xYourAgentAddress",
+#   "status":          "approved",         // or "pending" | "rejected" | "suspended" | "none"
+#   "appliedAt":       "2026-04-28T...",
+#   "approvedAt":      "2026-04-29T...",
+#   "rejectedReason":  null
+# }
 ```
+
+Always poll this before calling `POST /x402/markets`. The $1 payment is **not refundable** if the call fails the creator gate (returns 403).
 
 ---
 

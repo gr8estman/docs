@@ -84,8 +84,11 @@ The BlockForecast REST API gives you programmatic access to prediction markets â
         headers={"X-API-Key": os.environ["BLOCKFORECAST_API_KEY"]},
     )
     resp.raise_for_status()
-    markets = resp.json()
-    print(f"Found {markets['total']} markets")
+    body = resp.json()
+    # Every v2 endpoint wraps results: { success: true, data: {...} }
+    markets = body["data"]["markets"]
+    total   = body["data"]["total"]
+    print(f"Found {total} markets")
     ```
 
     ```typescript JavaScript / TypeScript
@@ -96,8 +99,10 @@ The BlockForecast REST API gives you programmatic access to prediction markets â
     });
 
     if (!resp.ok) throw new Error(`API error: ${resp.status}`);
-    const markets = await resp.json();
-    console.log(`Found ${markets.total} markets`);
+    const body = await resp.json();
+    // Every v2 endpoint wraps results: { success: true, data: {...} }
+    const { markets, total } = body.data;
+    console.log(`Found ${total} markets`);
     ```
 
     </CodeGroup>

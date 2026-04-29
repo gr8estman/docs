@@ -3,7 +3,9 @@ title: "Apply for Creator Access on BlockForecast"
 description: "Submit your creator application at blockforecast.io/apply. Reviewed in under 24 hours. Learn what the team looks for and how to write a strong submission."
 ---
 
-The creator application is a quality gate, not a gatekeeper. BlockForecast reviews every application to make sure the platform stays free of ambiguous, low-effort, or unresolvable markets — but the bar is reasonable. If you have a specific topic area, can write clear binary questions, and have a plan to bring traders to your markets, you'll get approved. The review typically takes under 24 hours, and you'll hear back via X DM on the handle you provide. You can also check status at any time by visiting [/create](https://blockforecast.io/create) — your wallet's current state (`pending`, `approved`, `rejected`, or `suspended`) is shown there.
+The creator application is a quality gate, not a gatekeeper. BlockForecast reviews every application to make sure the platform stays free of ambiguous, low-effort, or unresolvable markets — but the bar is reasonable. If you have a specific topic area, can write clear binary questions, and have a plan to bring traders to your markets, you'll get approved. The review typically completes in under 24 hours.
+
+There's no automatic email or DM when a decision is made. **Check your status at [/create](https://blockforecast.io/create) any time** — the page shows your wallet's current state (`pending`, `approved`, `rejected`, or `suspended`) plus any rejection reason recorded by the reviewer. The same status is queryable programmatically at `GET /api/v2/creator/status?address=0x...` if you want to poll from a script.
 
 <Note>
   Creator access is required before you can publish any market on BlockForecast. You cannot reach the market creation form at `/create` without approved creator status.
@@ -51,17 +53,17 @@ The form at [blockforecast.io/apply](https://blockforecast.io/apply) asks for fi
     Explain where your traders will come from. This doesn't need to be large — a 500-person Discord or a niche Farcaster channel counts. The team wants to see that you've thought about bringing volume to your markets.
   </Step>
   <Step title="Submit and wait for review">
-    Submit the form. The applicant page will switch to "Application received." Reviews typically complete in under 24 hours — often faster during business hours. You'll be DM'd on X when there's a decision; you can also check status at [/create](https://blockforecast.io/create) any time. If you haven't heard back after 48 hours, email [support@blockforecast.io](mailto:support@blockforecast.io).
+    Submit the form. The applicant page will switch to "Application received." Reviews typically complete in under 24 hours — often faster during business hours. To find out if you've been approved, **check [/create](https://blockforecast.io/create)** — your wallet's status is shown there. If you're still in `pending` after 48 hours, email [support@blockforecast.io](mailto:support@blockforecast.io).
   </Step>
 </Steps>
 
 ## What happens after you submit
 
-Once your application is under review, the team checks your example markets against the resolvability and quality criteria. Most decisions land in under 24 hours and are delivered via X DM on the handle you provided.
+Once your application is under review, the team checks your example markets against the resolvability and quality criteria. Most decisions land in under 24 hours. **There's no outbound notification — check your status at [/create](https://blockforecast.io/create) (the page reads `creator_status` from your profile and renders a state-specific view).**
 
-**If approved:** your wallet is upgraded to creator status immediately. You can access `/create` right away and launch your first market — the wizard rehydrates any draft you started before applying, so you pick up where you left off.
+**If approved:** your wallet is upgraded to creator status immediately. The next time you load `/create` you'll see the market-creation wizard. If you started a draft before applying, the wizard rehydrates it from `localStorage` so you pick up where you left off.
 
-**If not approved:** the X DM explains which criteria weren't met and whether you can reapply. Common reasons for rejection are ambiguous example markets or no clear distribution plan — both of which are fixable with a revised submission. The form pre-fills with your previous answers when you reapply.
+**If not approved:** `/create` shows the rejection reason recorded by the reviewer plus a "Reapply" button. Common reasons are ambiguous example markets or no clear distribution plan — both fixable with a revised submission. The reapply form pre-fills with your previous answers.
 
 ## What to do while you wait
 
@@ -77,9 +79,9 @@ Once your application is under review, the team checks your example markets agai
     No. The application is free. Creating a market via the website is free for approved creators (gas only, cents on Base). Creating via the [x402 Agent API](/developers/x402-overview) costs $1 USDC per market — paid by the agent wallet, non-refundable on unapproved wallets.
   </Accordion>
   <Accordion title="Can I reapply if rejected?">
-    Yes. Address the specific feedback in the rejection email and resubmit. Most applicants who reapply with stronger example markets and a clearer distribution plan are approved on the second attempt.
+    Yes. Open [/create](https://blockforecast.io/create) — if your wallet is in `rejected` state the page shows the recorded reason and a "Reapply" button. Address the feedback and resubmit. Most applicants who reapply with stronger example markets and a clearer distribution plan are approved on the second attempt.
   </Accordion>
   <Accordion title="How do I know when I'm approved?">
-    You'll get an X DM on the handle you submitted. You can also check status any time by visiting [/create](https://blockforecast.io/create) — the page shows your wallet's current state (`pending`, `approved`, `rejected`, or `suspended`) and the next action.
+    Visit [/create](https://blockforecast.io/create). The page shows your wallet's current state (`pending`, `approved`, `rejected`, or `suspended`). When you're approved, the market-creation wizard appears immediately. There's no automatic email or DM — checking the page is the canonical signal.
   </Accordion>
 </AccordionGroup>

@@ -1,9 +1,13 @@
 ---
 title: "How to Deposit USDC on BlockForecast"
-description: "Fund your BlockForecast account via the in-app bridge from any crypto, or withdraw USDC from Binance, OKX, Bybit, and other CEXs that support Base L2."
+description: "Fund your BlockForecast account via the in-app bridge from any crypto on any chain, or withdraw USDC from a CEX that supports Base L2."
 ---
 
-BlockForecast settles in USDC on Base L2. To start trading, you need USDC on Base in your wallet. If that sounds like a lot of steps, it isn't — the in-app bridge accepts any crypto on any chain (ETH, SOL, USDT, BTC via WBTC, anything) and auto-converts to USDC on Base in a single transaction. You never need a Coinbase account, and the bridge works in every country including Nigeria, Ghana, and Kenya. Below are three paths to fund your account, ordered from easiest to most manual.
+BlockForecast settles in USDC on Base L2. To start trading, you need USDC on Base in your wallet. The in-app bridge accepts any crypto on any chain (ETH, SOL, USDT, USDC on other chains, anything) and auto-converts to USDC on Base in a single transaction. Below are three paths to fund your account, ordered from easiest to most manual.
+
+<Note>
+  BlockForecast does **not** offer fiat onramps directly. You bring crypto in; the platform takes it from there. Local fiat-to-crypto methods (P2P, regional exchanges, etc.) live with their respective providers and are outside BlockForecast's scope.
+</Note>
 
 <Note>
   BlockForecast uses **native USDC on Base** — not USDC.e (bridged USDC) or USDC on Ethereum mainnet. The in-app bridge always delivers native USDC, so you don't need to worry about this when using Path 1. If you arrive at the platform with bridged USDC, swap to native via Uniswap on Base before trading.
@@ -43,20 +47,18 @@ BlockForecast settles in USDC on Base L2. To start trading, you need USDC on Bas
   <Tab title="Path 2 — CEX withdrawal to Base">
     If you already have USDC on a centralized exchange, you can withdraw directly to Base without using the bridge. Most major exchanges added Base support by 2026.
 
-    **Exchanges that support Base withdrawals:**
+    **Exchanges that support Base withdrawals** (verify your account's region eligibility on the exchange):
 
-    | Exchange | Base USDC | Regions |
-    |----------|-----------|---------|
-    | Binance | Yes | Nigeria, Ghana, Kenya, India, most of Asia and Africa |
-    | OKX | Yes | Nigeria and most regions |
-    | Bybit | Yes | Most regions including Nigeria |
-    | KuCoin | Yes | Most regions |
-    | Crypto.com | Yes | Region-restricted in some places |
-    | Coinbase | Yes (free) | US, Europe, parts of Asia — not Nigeria |
+    - Binance
+    - OKX
+    - Bybit
+    - KuCoin
+    - Crypto.com
+    - Coinbase
 
     <Steps>
-      <Step title="Buy USDC on the exchange">
-        Purchase USDC using your preferred payment method. If you're in Nigeria, Binance Naira P2P is a reliable fiat onramp.
+      <Step title="Have USDC on the exchange">
+        If you don't already hold USDC on a CEX, acquire it through whatever methods that exchange supports in your region. BlockForecast does not facilitate that step.
       </Step>
       <Step title="Go to Withdraw">
         Navigate to the withdrawal screen for USDC.
@@ -98,29 +100,6 @@ BlockForecast settles in USDC on Base L2. To start trading, you need USDC on Bas
     </Steps>
   </Tab>
 </Tabs>
-
-## Regional onramps (Nigeria, Ghana, Kenya)
-
-If you're in a region where Coinbase isn't available, here are local fiat-to-crypto onramps that feed cleanly into Path 1 or Path 2:
-
-<AccordionGroup>
-  <Accordion title="Nigeria">
-    - **Binance Naira P2P** — buy USDT or BNB with NGN, then use Path 1 to bridge to USDC on Base, or withdraw USDC via Binance to Base directly (Path 2).
-    - **Yellow Card** — NGN to USDT or USDC, available in-app.
-    - **Moonpay** — card-funded crypto, supported in Nigeria.
-    - **Paxful** P2P — peer-to-peer trades for various fiat methods.
-  </Accordion>
-  <Accordion title="Ghana">
-    - **Yellow Card** — GHS to USDT or USDC.
-    - **Binance P2P** — GHS trades available.
-  </Accordion>
-  <Accordion title="Kenya">
-    - **Yellow Card** — KES to USDT or USDC.
-    - **Binance P2P** — KES trades available. M-Pesa is a common payment method on P2P.
-  </Accordion>
-</AccordionGroup>
-
-After acquiring any crypto via a local onramp, use the in-app bridge (Path 1) — it accepts any token on any chain and converts everything to USDC on Base automatically.
 
 ## Don't have a wallet yet?
 
