@@ -3,7 +3,7 @@ title: "AI Oracle: How BlockForecast Resolves Markets"
 description: "BlockForecast resolves markets with a multi-agent AI oracle. Seven agents vote with confidence scores, reach weighted consensus, and self-calibrate over time."
 ---
 
-BlockForecast does not rely on human voters, internal staff, or a slow dispute window to decide market outcomes. Every market that closes enters an automated resolution pipeline where seven independent AI agents read authoritative sources in parallel, emit confidence-weighted votes, and reach consensus. Most resolutions commit in **two to seven minutes** depending on whether tier-1 unanimity short-circuits the deeper agents (each agent has a 90-second per-call budget, run in parallel batches of three). After consensus, payouts are held for a **24-hour appeal window** before they release — see [Resolution policy](/how-it-works/resolution-policy) for that part. The system is self-improving: agent accuracy in a given category is recalculated automatically every 50 resolutions and feeds back into how much weight each agent's vote carries on future markets. No single agent can swing an outcome, and every step is logged publicly on the oracle dashboard.
+Every market that closes enters an automated resolution pipeline where independent AI agents read authoritative sources in parallel, emit confidence-weighted votes, and reach consensus. Most resolutions commit within minutes. After consensus, payouts are held for a **24-hour appeal window** before they release — see [Resolution policy](/how-it-works/resolution-policy) for that part. The system is self-improving: each agent's accuracy by category is tracked and feeds back into how much weight its vote carries on future markets. No single agent can swing an outcome, and every step is logged publicly on the oracle dashboard.
 
 ## How the oracle works
 
@@ -12,13 +12,13 @@ BlockForecast does not rely on human voters, internal staff, or a slow dispute w
     When a market reaches its resolution date, the resolution scanner picks it up and queues it automatically. Trading closes at this point; no funds are at risk during the resolution window.
   </Step>
   <Step title="Specialist agents are assigned">
-    The oracle routes the market to the right agents based on category. Sports markets go to sport-specialist agents with access to fixture APIs. Crypto price markets go to price-feed agents connected to Pyth and CoinGecko. News and geopolitics markets go to research agents with web search and primary-source access. Each agent is an independent LLM from a different frontier model provider.
+    The oracle routes the market to the right agents based on category. Sports markets go to sport-specialist agents with access to fixture APIs. Crypto price markets go to price-feed agents connected to Pyth and CoinGecko. News and geopolitics markets go to research agents with web search and primary-source access. Agents are drawn from multiple frontier model providers — the oracle never relies on a single model.
   </Step>
   <Step title="Agents evaluate independently and vote">
-    Seven agents run in parallel. Each agent reads the sources that were whitelisted at market creation — the same sources the market creator specified — and evaluates the resolution criteria. Each agent emits three things: an outcome (YES / NO / outcome index), a confidence score between 0 and 1, and a list of cited sources.
+    Agents run in parallel. Each one reads the sources whitelisted at market creation — the same sources the creator specified — and evaluates the resolution criteria. Each agent emits three things: an outcome (YES / NO / outcome index), a confidence score between 0 and 1, and a list of cited sources.
   </Step>
   <Step title="Consensus algorithm combines the votes">
-    The consensus algorithm weights each agent's vote by its historical calibration score for that market category. Agents with a strong track record on crypto price questions carry more weight on crypto price resolutions. The weighted votes produce a final outcome and an aggregate confidence level.
+    The algorithm weights each agent's vote by its historical calibration score for that market category. Agents with a strong track record on crypto price questions carry more weight on crypto price resolutions. The weighted votes produce a final outcome and an aggregate confidence level.
   </Step>
   <Step title="Outcome commits or escalates">
     If aggregate confidence clears the threshold and a majority of agents agree, the outcome commits and the market settles. If confidence falls below threshold, or agents are split, the resolution automatically escalates to the adversarial appeals path before anything is committed.
@@ -27,7 +27,7 @@ BlockForecast does not rely on human voters, internal staff, or a slow dispute w
 
 ## Self-improving calibration
 
-The oracle maintains a calibration table that tracks each agent's resolution accuracy, broken down by market category. After every committed resolution, that agent's record is appended; recalibration runs in batches every 50 resolutions and updates the per-category weights. Agents that stay accurate on a category gain weight in future votes; agents whose accuracy drifts lose it. The feedback loop is automatic — no manual tuning, no human in the loop.
+The oracle maintains a calibration table that tracks each agent's resolution accuracy, broken down by market category. After every committed resolution, that agent's record is updated and the per-category weights are recalculated. Agents that stay accurate on a category gain weight in future votes; agents whose accuracy drifts lose it. The feedback loop is automatic — no manual tuning, no human in the loop.
 
 <Note>
   You can view each agent's live calibration score, running accuracy by category, and voting history on the public [oracle dashboard](https://blockforecast.io/oracle). No account required.
@@ -46,11 +46,11 @@ Sources are selected and frozen at market creation. The agents at resolution che
 
 ## Why multiple agents?
 
-A single LLM can confidently produce a wrong answer. Seven independent agents from different providers are far harder to fool, and their disagreement is itself informative.
+A single LLM can confidently produce a wrong answer. Multiple independent agents from different providers are far harder to fool, and their disagreement is itself informative.
 
 <CardGroup cols={2}>
   <Card title="Hallucination resistance" icon="shield">
-    When all seven agents agree, that agreement is a much stronger signal than any single model's output. Disagreement automatically flags the resolution for closer review.
+    When agents agree, that agreement is a much stronger signal than any single model's output. Disagreement automatically flags the resolution for closer review.
   </Card>
   <Card title="Provider diversity" icon="shuffle">
     Agents use frontier models from different providers. Each provider's failure modes are different, so correlated errors across the full ensemble are rare.

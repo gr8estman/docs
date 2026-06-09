@@ -18,11 +18,11 @@ Returns a paginated, filterable list of prediction markets.
 ### Query parameters
 
 <ParamField query="status" type="string">
-  Filter by market status. One of `active`, `resolved`, `cancelled`. Omit to return all statuses.
+  Filter by market status. One of `open` (trading), `resolved` (settled). Omit to return all statuses.
 </ParamField>
 
 <ParamField query="category" type="string">
-  Filter by category slug. Common values: `crypto`, `sports`, `politics`, `science`, `entertainment`. Omit to return all categories.
+  Filter by category slug. Common values: `crypto`, `sports`, `politics`, `science`, `entertainment`. Matched case-insensitively. Omit to return all categories.
 </ParamField>
 
 <ParamField query="limit" type="integer">
@@ -43,11 +43,14 @@ Returns a paginated, filterable list of prediction markets.
   Array of market objects.
 
   <Expandable title="Market object fields">
-    <ResponseField name="id" type="string">
-      Unique market identifier with `mkt_` prefix.
+    <ResponseField name="id" type="integer">
+      Numeric market identifier (e.g., `781`).
+    </ResponseField>
+    <ResponseField name="tickerId" type="string">
+      Human-readable ticker (e.g., `BF-0781`).
     </ResponseField>
     <ResponseField name="slug" type="string">
-      URL-friendly market slug (e.g., `btc-above-150k-dec-2026`).
+      URL-friendly market slug (e.g., `will-btc-close-above-150k-dec-2026`).
     </ResponseField>
     <ResponseField name="question" type="string">
       The full market question text.
@@ -56,7 +59,7 @@ Returns a paginated, filterable list of prediction markets.
       Category slug.
     </ResponseField>
     <ResponseField name="status" type="string">
-      One of `active`, `resolved`, `cancelled`.
+      One of `open` (trading), `resolving` (closed, awaiting oracle), `resolved` (settled).
     </ResponseField>
     <ResponseField name="yesPrice" type="number">
       Current LSMR YES price as a probability (0–1).
@@ -107,7 +110,7 @@ Returns a paginated, filterable list of prediction markets.
     resp = requests.get(
         "https://blockforecast.io/api/v2/public/markets",
         headers={"X-API-Key": os.environ["BLOCKFORECAST_API_KEY"]},
-        params={"status": "active", "category": "crypto", "limit": 5},
+        params={"status": "open", "category": "crypto", "limit": 5},
     )
     resp.raise_for_status()
     data = resp.json()
@@ -138,11 +141,12 @@ Returns a paginated, filterable list of prediction markets.
 {
   "markets": [
     {
-      "id": "mkt_01hx9z3kqb8v2wyn4rfpje5d7t",
-      "slug": "btc-above-150k-dec-2026",
+      "id": 781,
+      "tickerId": "BF-0781",
+      "slug": "will-btc-close-above-150k-dec-2026",
       "question": "Will BTC close above $150k on Dec 31, 2026?",
       "category": "crypto",
-      "status": "active",
+      "status": "open",
       "yesPrice": 0.34,
       "noPrice": 0.66,
       "volume": 18420.50,
@@ -161,12 +165,12 @@ Returns a paginated, filterable list of prediction markets.
 
 ## GET /public/markets/:id
 
-Fetches a single market by its ID.
+Fetches a single market by its numeric ID, ticker ID, or slug.
 
 ### Path parameters
 
 <ParamField path="id" type="string" required>
-  The market ID (with `mkt_` prefix) or the market slug. Both are accepted.
+  The market's numeric `id` (e.g., `781`), `tickerId` (e.g., `BF-0781`), or `slug`. All three are accepted.
 </ParamField>
 
 ### Response fields
@@ -211,7 +215,7 @@ Returns a single market object with all the fields described in `GET /markets`, 
 <Tabs>
   <Tab title="curl">
     ```bash
-    curl "https://blockforecast.io/api/v2/public/markets/mkt_01hx9z3kqb8v2wyn4rfpje5d7t" \
+    curl "https://blockforecast.io/api/v2/public/markets/781" \
       -H "X-API-Key: $BLOCKFORECAST_API_KEY"
     ```
   </Tab>
@@ -219,7 +223,7 @@ Returns a single market object with all the fields described in `GET /markets`, 
     ```python
     import os, requests
 
-    market_id = "mkt_01hx9z3kqb8v2wyn4rfpje5d7t"
+    market_id = 781
     resp = requests.get(
         f"https://blockforecast.io/api/v2/public/markets/{market_id}",
         headers={"X-API-Key": os.environ["BLOCKFORECAST_API_KEY"]},
@@ -231,7 +235,7 @@ Returns a single market object with all the fields described in `GET /markets`, 
   </Tab>
   <Tab title="TypeScript">
     ```typescript
-    const marketId = "mkt_01hx9z3kqb8v2wyn4rfpje5d7t";
+    const marketId = 781;
     const resp = await fetch(
       `https://blockforecast.io/api/v2/public/markets/${marketId}`,
       { headers: { "X-API-Key": process.env.BLOCKFORECAST_API_KEY! } }
@@ -275,8 +279,8 @@ Creates a new prediction market. Requires your wallet to have approved creator s
 
 Returns the newly created market object with all fields from `GET /markets/:id`.
 
-<ResponseField name="id" type="string">
-  The new market's unique identifier.
+<ResponseField name="id" type="integer">
+  The new market's numeric identifier.
 </ResponseField>
 
 <ResponseField name="slug" type="string">
@@ -284,7 +288,7 @@ Returns the newly created market object with all fields from `GET /markets/:id`.
 </ResponseField>
 
 <ResponseField name="status" type="string">
-  Always `active` on creation.
+  Always `open` on creation.
 </ResponseField>
 
 ### Examples
@@ -387,11 +391,11 @@ Returns a paginated list of trades for a specific market, ordered from most rece
   Array of trade objects.
 
   <Expandable title="Trade object fields">
-    <ResponseField name="id" type="string">
-      Unique trade identifier with `trd_` prefix.
+    <ResponseField name="id" type="integer">
+      Numeric trade identifier.
     </ResponseField>
-    <ResponseField name="marketId" type="string">
-      The market this trade belongs to.
+    <ResponseField name="marketId" type="integer">
+      The numeric ID of the market this trade belongs to.
     </ResponseField>
     <ResponseField name="side" type="string">
       `YES` or `NO`.
@@ -423,7 +427,7 @@ Returns a paginated list of trades for a specific market, ordered from most rece
 <Tabs>
   <Tab title="curl">
     ```bash
-    curl "https://blockforecast.io/api/v2/public/markets/mkt_01hx9z3kqb8v2wyn4rfpje5d7t/trades?limit=10" \
+    curl "https://blockforecast.io/api/v2/public/markets/781/trades?limit=10" \
       -H "X-API-Key: $BLOCKFORECAST_API_KEY"
     ```
   </Tab>
@@ -431,7 +435,7 @@ Returns a paginated list of trades for a specific market, ordered from most rece
     ```python
     import os, requests
 
-    market_id = "mkt_01hx9z3kqb8v2wyn4rfpje5d7t"
+    market_id = "781"
     resp = requests.get(
         f"https://blockforecast.io/api/v2/public/markets/{market_id}/trades",
         headers={"X-API-Key": os.environ["BLOCKFORECAST_API_KEY"]},
@@ -446,7 +450,7 @@ Returns a paginated list of trades for a specific market, ordered from most rece
   </Tab>
   <Tab title="TypeScript">
     ```typescript
-    const marketId = "mkt_01hx9z3kqb8v2wyn4rfpje5d7t";
+    const marketId = "781";
     const resp = await fetch(
       `https://blockforecast.io/api/v2/public/markets/${marketId}/trades?limit=10`,
       { headers: { "X-API-Key": process.env.BLOCKFORECAST_API_KEY! } }
@@ -467,8 +471,8 @@ Returns a paginated list of trades for a specific market, ordered from most rece
 {
   "trades": [
     {
-      "id": "trd_01hz4m7pqk9c3xbn6sgwre2f8v",
-      "marketId": "mkt_01hx9z3kqb8v2wyn4rfpje5d7t",
+      "id": 31487,
+      "marketId": 781,
       "side": "YES",
       "shares": 50.0,
       "pricePerShare": 0.341,

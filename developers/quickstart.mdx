@@ -119,11 +119,12 @@ The BlockForecast REST API gives you programmatic access to prediction markets â
     {
       "markets": [
         {
-          "id": "mkt_01hx9z3kqb8v2wyn4rfpje5d7t",
-          "slug": "btc-above-150k-dec-2026",
+          "id": 781,
+          "tickerId": "BF-0781",
+          "slug": "will-btc-close-above-150k-dec-2026",
           "question": "Will BTC close above $150k on Dec 31, 2026?",
           "category": "crypto",
-          "status": "active",
+          "status": "open",
           "yesPrice": 0.34,
           "noPrice": 0.66,
           "volume": 18420.50,
@@ -138,7 +139,7 @@ The BlockForecast REST API gives you programmatic access to prediction markets â
     }
     ```
 
-    Each market object includes the current LSMR prices (`yesPrice`, `noPrice`), aggregate volume, available liquidity, and the resolution date. Prices are expressed as probabilities between 0 and 1 â€” a `yesPrice` of `0.34` means the market currently prices the YES outcome at 34 cents per share.
+    Each market object includes the current LSMR prices (`yesPrice`, `noPrice`), aggregate volume, available liquidity, and the resolution date. Prices are expressed as probabilities between 0 and 1 â€” a `yesPrice` of `0.34` means the market currently prices the YES outcome at 34 cents per share. The `status` field is `open` while trading is live, `resolving` after close, and `resolved` once the oracle settles.
 
     <Note>
       All monetary values in the API are denominated in USDC (6-decimal precision on-chain, returned as floating-point USD in the REST API).

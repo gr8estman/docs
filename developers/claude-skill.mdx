@@ -37,7 +37,7 @@ The skill is open source — source on GitHub: [gr8estman/blockforecast-skills](
     Send ~$5 USDC (Base mainnet) to the agent address. Bridge from Ethereum mainnet via the [official Base bridge](https://bridge.base.org), or off-ramp directly from Coinbase to Base. Each market creation costs **$1 USDC** plus a few cents of gas.
   </Step>
   <Step title="Apply for creator access">
-    Visit [blockforecast.io/apply](https://blockforecast.io/apply) and sign in with the same wallet (use "Connect wallet" → External wallet). Submit the application. Approval typically lands in under 24 hours; you'll be notified via X DM on the handle you submitted.
+    Visit [blockforecast.io/apply](https://blockforecast.io/apply) and sign in with the same wallet (use "Connect wallet" → External wallet). Submit the application. Approval typically lands in under 24 hours — there's no outbound notification, so check [/create](https://blockforecast.io/create) to see your status.
 
     <Note>
       The skill **will not call the paid endpoint** until your wallet shows `status: approved`. The $1 x402 fee is non-refundable on unapproved wallets, so apply first.
@@ -105,7 +105,7 @@ A market doing $50k of lifetime volume nets the creator $250. Most active creato
 | `missing_key` | Run `export BF_AGENT_KEY="0x..."` |
 | `bad_key` | Key must be 32 bytes hex with optional `0x` prefix |
 | `creator_not_approved` | One-time apply at [/apply](https://blockforecast.io/apply) |
-| `creator_pending` | Wait for approval (~24h) — you'll be DM'd on X when it lands |
+| `creator_pending` | Wait for approval (~24h) — re-check at [/create](https://blockforecast.io/create) |
 | `creator_rejected` | See rejection reason; address it; reapply at /apply |
 | `creator_suspended` | Contact [support@blockforecast.io](mailto:support@blockforecast.io) |
 | `insufficient_usdc` | Add USDC on Base to the agent wallet |

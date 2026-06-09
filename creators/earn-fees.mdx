@@ -5,7 +5,7 @@ description: "BlockForecast pays creators 0.5% of every trade in real time. Lear
 
 Every time a trader buys or sells a position on a market you created, **0.5% of that trade is credited to your on-platform creator balance** in real time. There's no batching, no review process for the credit itself, and no vesting schedule — the moment a trade settles, the fee shows up in your balance. If you never log in again after launching a market, fees keep accruing in that balance until the market resolves.
 
-When you withdraw your balance to your wallet, the platform deducts a **30% withdrawal fee** (the platform cut on creator earnings). The remaining 70% is sent to your wallet as USDC on Base. This is documented in the engine at [`apps/engine/src/routes/v2/creator.ts`](https://github.com/gr8estman/blockforecast-monorepo/blob/main/apps/engine/src/routes/v2/creator.ts).
+When you withdraw your balance to your wallet, the platform deducts a **30% withdrawal fee** (the platform cut on creator earnings). The remaining 70% is sent to your wallet as USDC on Base.
 
 ## How the fee is calculated
 
@@ -88,7 +88,7 @@ Traders place larger positions when resolution criteria are unambiguous. A clear
     Go to your creator dashboard and use the withdrawal flow to transfer your balance to USDC on Base. The minimum withdrawal is $10 (gross). At withdrawal, the platform deducts a 30% cut and sends the remaining 70% to your wallet — for example, withdrawing a $250 balance nets you $175. No vesting, no waiting period, no review queue. Gas on Base is usually under a cent and is paid by the engine signer.
   </Accordion>
   <Accordion title="Why is there a 30% platform cut on withdrawals?">
-    The 0.5% creator fee covers your share of every trade. The 30% platform cut at withdrawal funds platform operations: AI oracle resolution costs (real LLM API spend per market resolution), engine and database infrastructure, x402 facilitator fees, and ongoing development. The net 0.35% effective creator share is still ~7× higher than the standard prediction-market norm of 0% (Polymarket and Kalshi pay creators nothing).
+    The 0.5% creator fee covers your share of every trade. The 30% cut at withdrawal funds platform operations — oracle resolution, infrastructure, settlement, and ongoing development. Your net share (0.35% effective per trade) is still meaningfully above the prediction-market norm, where creators are typically paid nothing.
   </Accordion>
   <Accordion title="Do I earn fees on the initial liquidity the LSMR provides?">
     The LSMR automated market maker provides initial liquidity but does not generate creator fees — only trades by external users do. As user volume grows, the LSMR's share of activity decreases relative to organic trading.

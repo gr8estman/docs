@@ -3,7 +3,7 @@ title: "5-Minute Bitcoin Prediction Markets on BlockForecast"
 description: "Trade BTC, ETH, and SOL up-or-down on rolling 5- and 15-minute markets. Pyth-oracle resolved, USDC on Base, always-on — the fastest crypto prediction product."
 ---
 
-BlockForecast's 5-minute markets are the fastest prediction product on the platform — and, as of 2026, the fastest publicly tradeable crypto prediction markets anywhere. Polymarket's shortest crypto markets are weekly. Kalshi has hourly Bitcoin contracts. BlockForecast has 5-minute. The premise is simple: at the start of each round, the current spot price is captured as the anchor; at the end, the market resolves UP if the spot price is at or above that anchor, and DOWN if it's below. Markets are rolling and always-on — when one round closes, the next is already open.
+BlockForecast's 5-minute markets are the fastest prediction product on the platform. The premise is simple: at the start of each round, the current spot price is captured as the anchor; at the end, the market resolves UP if the spot price is at or above that anchor, and DOWN if it's below. Markets are rolling and always-on — when one round closes, the next is already open.
 
 ## How a round works
 
@@ -58,8 +58,6 @@ Additional assets are available on request — Pyth covers 50+ crypto assets.
 
 **Always-on.** Crypto trades 24 hours a day, seven days a week. So do these markets. There's no waiting for a market to open.
 
-**Differentiated product.** You can't trade 5-minute crypto markets on Polymarket or Kalshi. BlockForecast is the only platform currently offering sub-hourly rolling Bitcoin prediction markets at this level of accessibility.
-
 ## Reading the chart
 
 The market page shows a live spot price chart sourced from the Pyth feed. A **horizontal line** marks the anchor price for the current round. A **pulsing dot** tracks the current spot price at the rightmost edge of the chart.
@@ -79,10 +77,10 @@ Short-duration markets attract a specific kind of risk: a well-capitalized trade
     The order book closes 30 seconds before resolution on 5-minute rounds, and 60 seconds before resolution on 15-minute rounds. No trades are accepted during this window.
   </Accordion>
   <Accordion title="Time-decaying impact cap">
-    The maximum price impact per trade tightens as resolution approaches: 10% → 7% → 4% → 2.5%. Large orders placed close to resolution receive a worse fill rather than moving the price significantly.
+    The maximum price impact per trade tightens as resolution approaches. Large orders placed close to resolution receive a worse fill rather than moving the price significantly.
   </Accordion>
   <Accordion title="Position cap">
-    Per-wallet USDC exposure on a single round steps down as the round nears resolution: $50,000 → $20,000 → $5,000 → $1,000. This prevents late-stage position-building by well-capitalized accounts.
+    Per-wallet USDC exposure on a single round steps down as the round nears resolution, which prevents late-stage position-building by well-capitalized accounts. The current schedule is shown on the market page.
   </Accordion>
   <Accordion title="Quote auto-clamp">
     If your order size exceeds available depth, the system returns a smaller fitting quote rather than failing the order outright. You get a partial fill at the available price rather than an error.
@@ -91,7 +89,7 @@ Short-duration markets attract a specific kind of risk: a well-capitalized trade
 
 ## Fees
 
-The standard creator fee is **0.5%** per trade, plus a small protocol fee. As a round approaches resolution, the effective fee can increase up to **5%** during the final seconds to deter informed flow. This ramp is applied only in the window immediately before the halt.
+The standard creator fee is **0.5%** per trade, plus a small protocol fee. As a round approaches resolution, the effective fee ramps up to deter last-second informed flow. This ramp applies only in the window immediately before the halt — the live fee for any round is shown on the market page before you confirm a trade.
 
 ## How to place a trade
 

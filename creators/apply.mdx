@@ -5,7 +5,7 @@ description: "Submit your creator application at blockforecast.io/apply. Reviewe
 
 The creator application is a quality gate, not a gatekeeper. BlockForecast reviews every application to make sure the platform stays free of ambiguous, low-effort, or unresolvable markets — but the bar is reasonable. If you have a specific topic area, can write clear binary questions, and have a plan to bring traders to your markets, you'll get approved. The review typically completes in under 24 hours.
 
-There's no automatic email or DM when a decision is made. **Check your status at [/create](https://blockforecast.io/create) any time** — the page shows your wallet's current state (`pending`, `approved`, `rejected`, or `suspended`) plus any rejection reason recorded by the reviewer. The same status is queryable programmatically at `GET /api/v2/creator/status?address=0x...` if you want to poll from a script.
+There's no automatic email or DM when a decision is made. **Check your status at [/create](https://blockforecast.io/create) any time** — the page shows your wallet's current state (`pending`, `approved`, `rejected`, or `suspended`) plus any rejection reason recorded by the reviewer. The status is also queryable programmatically at `GET /api/v2/creator/status?address=0x...` if you want to poll from a script.
 
 <Note>
   Creator access is required before you can publish any market on BlockForecast. You cannot reach the market creation form at `/create` without approved creator status.
@@ -41,7 +41,7 @@ The form at [blockforecast.io/apply](https://blockforecast.io/apply) asks for fi
     Go to [blockforecast.io/apply](https://blockforecast.io/apply) and sign in with the wallet you intend to use for creating markets. BlockForecast uses Privy — you can sign in with Google, Apple, email, or an existing Web3 wallet. Use the wallet you want your creator fees paid to.
   </Step>
   <Step title="Fill in your profile details">
-    Enter your display name and X handle. Add Discord or Farcaster handles if you have them — creators with a Farcaster presence often see higher approval rates due to the platform's overlap with the Base ecosystem.
+    Enter your display name and X handle. Add Discord or Farcaster handles if you have them.
   </Step>
   <Step title="Choose your topic areas">
     Select up to five categories. Be specific: "Premier League and La Liga football" is more credible than "sports." The team looks for applicants with genuine expertise in their chosen domains.
@@ -59,9 +59,9 @@ The form at [blockforecast.io/apply](https://blockforecast.io/apply) asks for fi
 
 ## What happens after you submit
 
-Once your application is under review, the team checks your example markets against the resolvability and quality criteria. Most decisions land in under 24 hours. **There's no outbound notification — check your status at [/create](https://blockforecast.io/create) (the page reads `creator_status` from your profile and renders a state-specific view).**
+Once your application is under review, the team checks your example markets against the resolvability and quality criteria. Most decisions land in under 24 hours. **There's no outbound notification — check your status at [/create](https://blockforecast.io/create) any time.**
 
-**If approved:** your wallet is upgraded to creator status immediately. The next time you load `/create` you'll see the market-creation wizard. If you started a draft before applying, the wizard rehydrates it from `localStorage` so you pick up where you left off.
+**If approved:** your wallet is upgraded to creator status immediately, and the next time you load `/create` you'll see the market-creation wizard. Any draft you started before applying is preserved so you can pick up where you left off.
 
 **If not approved:** `/create` shows the rejection reason recorded by the reviewer plus a "Reapply" button. Common reasons are ambiguous example markets or no clear distribution plan — both fixable with a revised submission. The reapply form pre-fills with your previous answers.
 

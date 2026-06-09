@@ -28,10 +28,10 @@ Approved source categories are:
     At the resolution date, trading closes and the market enters `resolving` state. No new positions can be opened or closed during this window.
   </Step>
   <Step title="AI agents vote">
-    Seven independent AI agents are assigned based on market category. Each agent reads the whitelisted sources, evaluates the resolution criteria, and emits a vote (YES / NO / outcome index), a confidence score, and citations. Agents run in parallel — see [AI oracle](/how-it-works/ai-oracle) for the full architecture.
+    Independent AI agents are assigned based on market category. Each agent reads the whitelisted sources, evaluates the resolution criteria, and emits a vote (YES / NO / outcome index), a confidence score, and citations. Agents run in parallel — see [AI oracle](/how-it-works/ai-oracle) for the full architecture.
   </Step>
   <Step title="Consensus is evaluated">
-    The consensus algorithm combines the seven votes, weighting each by the agent's historical accuracy in that category. If a majority of agents agree and aggregate confidence clears the required threshold, the outcome is ready to commit.
+    The consensus algorithm combines the votes, weighting each by the agent's historical accuracy in that category. If a majority agree and aggregate confidence clears the required threshold, the outcome is ready to commit.
   </Step>
   <Step title="Market settles">
     Once consensus commits, the market settles and payouts are distributed automatically to winning positions. USDC is credited to your account balance on Base.
