@@ -1,0 +1,24 @@
+/*
+ * BlockForecast docs — custom overrides.
+ * Mintlify auto-loads root-level .css files.
+ *
+ * Goal: make code match the main app. The `luma` theme renders code in
+ * `paperMono` (a typewriter / academic font that reads as "math/LaTeX"). The
+ * BlockForecast app uses JetBrains Mono for code, so we align the docs to it.
+ * Headings (Unbounded) and body (Inter) are set in docs.json and untouched.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* All code surfaces: inline code, fenced blocks, code inside blocks, keys. */
+code,
+kbd,
+pre,
+pre code,
+:not(pre) > code,
+[class*="language-"],
+[class*="font-mono"] {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, 'Liberation Mono', 'Courier New', monospace !important;
+  font-variant-ligatures: none; /* keep code literal — no LaTeX-y ligatures */
+}
