@@ -13,14 +13,14 @@ The creator fee is 0.5% of each trade's notional value, charged at trade entry. 
 
 | Market lifetime volume | Gross fee (0.5%) | After 30% platform cut at withdrawal | Net to your wallet |
 |---|---|---|---|
-| $1,000 | $5 | −$1.50 | **$3.50** |
-| $10,000 | $50 | −$15 | **$35** |
-| $50,000 | $250 | −$75 | **$175** |
-| $100,000 | $500 | −$150 | **$350** |
-| $500,000 | $2,500 | −$750 | **$1,750** |
-| $1,000,000 | $5,000 | −$1,500 | **$3,500** |
+| \$1,000 | \$5 | −\$1.50 | **\$3.50** |
+| \$10,000 | \$50 | −\$15 | **\$35** |
+| \$50,000 | \$250 | −\$75 | **\$175** |
+| \$100,000 | \$500 | −\$150 | **\$350** |
+| \$500,000 | \$2,500 | −\$750 | **\$1,750** |
+| \$1,000,000 | \$5,000 | −\$1,500 | **\$3,500** |
 
-A single high-volume market can be meaningful, but most creators build earnings across a portfolio. Thirty markets each doing $20,000 generate $3,000 gross / **$2,100 net** — the same as one $600,000 market, but with much lower variance.
+A single high-volume market can be meaningful, but most creators build earnings across a portfolio. Thirty markets each doing \$20,000 generate \$3,000 gross / **\$2,100 net** — the same as one \$600,000 market, but with much lower variance.
 
 <Note>
   Creator fees are only paid on resolved trade volume. If a market is voided (for example, because the resolution event was cancelled with no outcome), fees are not paid for trades on that market.
@@ -30,10 +30,10 @@ A single high-volume market can be meaningful, but most creators build earnings 
 
 Fees are credited to your on-platform creator balance in real time on each trade. To move them to your own wallet, use the withdrawal flow on your creator dashboard.
 
-- **Minimum withdrawal:** $10 USD (gross). If your balance is below $10 the withdrawal endpoint returns an error and tells you the current balance.
+- **Minimum withdrawal:** \$10 USD (gross). If your balance is below \$10 the withdrawal endpoint returns an error and tells you the current balance.
 - **Platform cut at withdrawal:** 30% — deducted from the gross amount; the remaining 70% goes to your wallet as USDC on Base.
 - **Network gas:** typically a few cents on Base, paid by the engine signer.
-- **No vesting, no review queue.** As long as your balance ≥ $10 you can withdraw at any time.
+- **No vesting, no review queue.** As long as your balance ≥ \$10 you can withdraw at any time.
 
 ## Where to view your earnings
 
@@ -85,7 +85,7 @@ Traders place larger positions when resolution criteria are unambiguous. A clear
     Yes. There is no restriction on creators trading on their own markets. However, creating markets based on insider information you hold is prohibited and will result in account termination.
   </Accordion>
   <Accordion title="How do I withdraw my earnings?">
-    Go to your creator dashboard and use the withdrawal flow to transfer your balance to USDC on Base. The minimum withdrawal is $10 (gross). At withdrawal, the platform deducts a 30% cut and sends the remaining 70% to your wallet — for example, withdrawing a $250 balance nets you $175. No vesting, no waiting period, no review queue. Gas on Base is usually under a cent and is paid by the engine signer.
+    Go to your creator dashboard and use the withdrawal flow to transfer your balance to USDC on Base. The minimum withdrawal is \$10 (gross). At withdrawal, the platform deducts a 30% cut and sends the remaining 70% to your wallet — for example, withdrawing a \$250 balance nets you \$175. No vesting, no waiting period, no review queue. Gas on Base is usually under a cent and is paid by the engine signer.
   </Accordion>
   <Accordion title="Why is there a 30% platform cut on withdrawals?">
     The 0.5% creator fee covers your share of every trade. The 30% cut at withdrawal funds platform operations — oracle resolution, infrastructure, settlement, and ongoing development. Your net share (0.35% effective per trade) is still meaningfully above the prediction-market norm, where creators are typically paid nothing.

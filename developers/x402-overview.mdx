@@ -3,7 +3,7 @@ title: "x402 Agent API: Micropayment-Native Market Access"
 description: "The x402 Agent API lets AI agents create markets and query data by paying USDC directly — no API key, no OAuth, no signup. Payment is the authentication."
 ---
 
-The x402 Agent API is a micropayment-native API surface built on the [HTTP 402 Payment Required](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402) protocol. Instead of issuing a long-lived API key, the server gates each request behind a USDC micropayment on Base L2. Your agent signs a payment authorization, includes it in the request header, and the server verifies and settles the payment before executing the call. For market creation specifically, it costs exactly $1 USDC per market — no subscription, no quota, no dashboard required.
+The x402 Agent API is a micropayment-native API surface built on the [HTTP 402 Payment Required](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402) protocol. Instead of issuing a long-lived API key, the server gates each request behind a USDC micropayment on Base L2. Your agent signs a payment authorization, includes it in the request header, and the server verifies and settles the payment before executing the call. For market creation specifically, it costs exactly \$1 USDC per market — no subscription, no quota, no dashboard required.
 
 ## Who this is for
 
@@ -13,7 +13,7 @@ The x402 API is purpose-built for three categories of developer:
 
 **Automated systems and bots** where the overhead of the standard API key flow (signing in a browser, storing a key, handling key expiry) adds friction that doesn't make sense for a machine actor.
 
-**Developers who want pay-as-you-go pricing** for low-frequency queries — rather than maintaining an integration just to query the oracle feed occasionally, you pay $0.001 per call only when you need it.
+**Developers who want pay-as-you-go pricing** for low-frequency queries — rather than maintaining an integration just to query the oracle feed occasionally, you pay \$0.001 per call only when you need it.
 
 ## How the x402 protocol works
 
@@ -46,9 +46,9 @@ The entire round-trip typically completes in 3–5 seconds.
 | Endpoint | Price | Description |
 |---|---|---|
 | `GET /api/v2/x402/info` | Free | Lists all x402 endpoints, their prices, and the current payment requirements. Discovery endpoint — no payment needed. |
-| `GET /api/v2/x402/feed` | $0.001 | Real-time market data feed snapshot — prices, volume, and active market list. |
-| `GET /api/v2/x402/oracle/resolve` | $0.05 | Query the AI oracle for its current consensus on a given question. Returns probability and citations. |
-| `POST /api/v2/x402/markets` | $1.00 | Create a new prediction market. Requires creator approval (one-time, per wallet). |
+| `GET /api/v2/x402/feed` | \$0.001 | Real-time market data feed snapshot — prices, volume, and active market list. |
+| `GET /api/v2/x402/oracle/resolve` | \$0.05 | Query the AI oracle for its current consensus on a given question. Returns probability and citations. |
+| `POST /api/v2/x402/markets` | \$1.00 | Create a new prediction market. Requires creator approval (one-time, per wallet). |
 
 Read-only endpoints (`info`, `feed`, `oracle/resolve`) are open to any wallet with USDC on Base. Only `POST /x402/markets` requires creator approval.
 
@@ -76,7 +76,7 @@ Getting an agent to the point of creating markets involves four steps:
     Generate a wallet programmatically with `viem` or use any EVM-compatible wallet (MetaMask, Coinbase Wallet, a hardware wallet). Your agent needs to hold the private key to sign payments at runtime. Store the key in a secrets manager.
   </Step>
   <Step title="Fund the wallet with USDC on Base">
-    Send USDC on Base mainnet to the agent's address. $5 covers gas plus several market creations. Bridge from Ethereum via the [official Base bridge](https://bridge.base.org) or send directly from Coinbase.
+    Send USDC on Base mainnet to the agent's address. \$5 covers gas plus several market creations. Bridge from Ethereum via the [official Base bridge](https://bridge.base.org) or send directly from Coinbase.
   </Step>
   <Step title="Apply for creator access">
     Visit [blockforecast.io/apply](/creators/apply), connect with the agent wallet address, and submit the form. Approval lands within 24 hours. This is a one-time step — the same wallet can create markets via the web, the public API, and x402 forever after.

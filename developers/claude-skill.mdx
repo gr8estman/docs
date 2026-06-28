@@ -3,7 +3,7 @@ title: "Claude Code Skill — /bf-create-market"
 description: "Install the bf-create-market skill in Claude Code and create BlockForecast prediction markets with one slash command. Wraps the full x402 + creator-fee flow — no glue code."
 ---
 
-The **`bf-create-market`** Claude Code skill is the simplest way to launch BlockForecast markets from an AI agent. Install once, run a slash command, the skill handles the rest: derives your wallet from a private key, checks creator approval, signs the $1 USDC payment via x402 on Base, posts the market, and returns the URL. Creator-fee earnings (0.5% of every trade) flow back to your wallet automatically.
+The **`bf-create-market`** Claude Code skill is the simplest way to launch BlockForecast markets from an AI agent. Install once, run a slash command, the skill handles the rest: derives your wallet from a private key, checks creator approval, signs the \$1 USDC payment via x402 on Base, posts the market, and returns the URL. Creator-fee earnings (0.5% of every trade) flow back to your wallet automatically.
 
 If you're not using Claude Code, see the manual [x402 Quickstart](/developers/x402-create-market) — same endpoint, you write the glue code.
 
@@ -34,13 +34,13 @@ The skill is open source — source on GitHub: [gr8estman/blockforecast-skills](
     Save the key in your secrets manager (1Password, Doppler, AWS Secrets Manager, env file in your secrets store) — this is plain-text private-key custody, treat it accordingly.
   </Step>
   <Step title="Fund with USDC on Base">
-    Send ~$5 USDC (Base mainnet) to the agent address. Bridge from Ethereum mainnet via the [official Base bridge](https://bridge.base.org), or off-ramp directly from Coinbase to Base. Each market creation costs **$1 USDC** plus a few cents of gas.
+    Send ~\$5 USDC (Base mainnet) to the agent address. Bridge from Ethereum mainnet via the [official Base bridge](https://bridge.base.org), or off-ramp directly from Coinbase to Base. Each market creation costs **\$1 USDC** plus a few cents of gas.
   </Step>
   <Step title="Apply for creator access">
     Visit [blockforecast.io/apply](https://blockforecast.io/apply) and sign in with the same wallet (use "Connect wallet" → External wallet). Submit the application. Approval typically lands in under 24 hours — there's no outbound notification, so check [/create](https://blockforecast.io/create) to see your status.
 
     <Note>
-      The skill **will not call the paid endpoint** until your wallet shows `status: approved`. The $1 x402 fee is non-refundable on unapproved wallets, so apply first.
+      The skill **will not call the paid endpoint** until your wallet shows `status: approved`. The \$1 x402 fee is non-refundable on unapproved wallets, so apply first.
     </Note>
   </Step>
   <Step title="Set the env var">
@@ -92,11 +92,11 @@ Behind the scenes the skill `POST`s to `/api/v2/x402/markets` — the [Create Ma
 | Action | Cost |
 |--------|------|
 | Apply for creator access | Free |
-| Create one market via the skill | $1 USDC + ~$0.001 gas |
+| Create one market via the skill | \$1 USDC + ~\$0.001 gas |
 | Earn from trades on your market | 0.5% of every trade — paid to your wallet in real time |
 | Withdraw earnings | Gas only |
 
-A market doing $50k of lifetime volume nets the creator $250. Most active creators run a portfolio of 30+ markets.
+A market doing \$50k of lifetime volume nets the creator \$250. Most active creators run a portfolio of 30+ markets.
 
 ## Errors and what to do
 
@@ -122,7 +122,7 @@ A market doing $50k of lifetime volume nets the creator $250. Most active creato
 
 These skills are planned next — they share the same wallet + creator setup:
 
-- `bf-resolve-oracle` — query oracle consensus on any yes/no question ($0.05 USDC per call)
+- `bf-resolve-oracle` — query oracle consensus on any yes/no question (\$0.05 USDC per call)
 - `bf-check-balance` — read agent wallet's USDC balance + open positions
 - `bf-list-markets` — search BlockForecast markets by category
 - `bf-trade` — place a trade on an existing market

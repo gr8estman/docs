@@ -133,7 +133,7 @@ const markets = await getWithBackoff("/public/markets", { status: "active" });
 
 **Batch reads with pagination.** Rather than making one request per market, use the `limit` parameter on `GET /markets` to fetch up to 100 markets in a single call. Then page through with `offset` as needed.
 
-**Use the real-time feed for high-frequency data.** If you need market prices at sub-second latency, the x402 feed endpoint (`GET /api/v2/x402/feed`, $0.001/call) is designed for that use case and does not count against your REST rate limit.
+**Use the real-time feed for high-frequency data.** If you need market prices at sub-second latency, the x402 feed endpoint (`GET /api/v2/x402/feed`, \$0.001/call) is designed for that use case and does not count against your REST rate limit.
 
 **Deduplicate inflight requests.** In async or multi-threaded code, use a simple in-memory cache or request-deduplication layer to prevent the same resource from being fetched concurrently by multiple coroutines or threads.
 

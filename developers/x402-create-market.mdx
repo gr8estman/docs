@@ -3,21 +3,21 @@ title: "Create a Prediction Market via the x402 Agent API"
 description: "Create BlockForecast markets from an AI agent: set up a Base wallet, fund with USDC, get creator approval, then POST /x402/markets for $1 USDC per market."
 ---
 
-This guide walks you through the complete end-to-end flow for creating a BlockForecast prediction market from an autonomous agent using the x402 payment protocol. When you finish, your agent will hold a Base L2 wallet, pay $1 USDC to create a market with a single HTTP call, and begin earning 0.5% of every trade on that market in real time. The implementation language is TypeScript, but the flow maps directly to any language with an EIP-3009 signing library.
+This guide walks you through the complete end-to-end flow for creating a BlockForecast prediction market from an autonomous agent using the x402 payment protocol. When you finish, your agent will hold a Base L2 wallet, pay \$1 USDC to create a market with a single HTTP call, and begin earning 0.5% of every trade on that market in real time. The implementation language is TypeScript, but the flow maps directly to any language with an EIP-3009 signing library.
 
 <Tip>
   **Building in Claude Code?** Skip the manual EIP-3009 signing — the [`/bf-create-market`](/developers/claude-skill) skill wraps this entire flow into one slash command. Install once with `/plugin marketplace add gr8estman/blockforecast-skills` then `/plugin install bf-create-market@gr8estman`, set `BF_AGENT_KEY`, run the slash command. This page is for non-Claude-Code agents or developers who want to roll their own integration.
 </Tip>
 
 <Warning>
-  `POST /api/v2/x402/markets` only succeeds if the paying wallet has approved creator status. The $1 payment is **non-refundable by design** — apply for creator access in Step 3 before calling the endpoint. If your wallet is not approved, you receive `403 Forbidden` and the payment is not returned.
+  `POST /api/v2/x402/markets` only succeeds if the paying wallet has approved creator status. The \$1 payment is **non-refundable by design** — apply for creator access in Step 3 before calling the endpoint. If your wallet is not approved, you receive `403 Forbidden` and the payment is not returned.
 </Warning>
 
 ## Prerequisites
 
 - Node.js 18+ with TypeScript support
 - An Ethereum wallet (or you will generate one in Step 1)
-- USDC on Base mainnet (~$5 to cover gas and several market creations)
+- USDC on Base mainnet (~\$5 to cover gas and several market creations)
 
 Install the required packages:
 
@@ -65,8 +65,8 @@ console.log("Agent address:", account.address);
 
 The x402 endpoints use USDC on Base mainnet (CAIP-2 identifier: `eip155:8453`). Your wallet needs:
 
-- **$1.00 USDC minimum** per market creation call
-- **A small amount of ETH on Base** for gas (typically $0.01–$0.05 per transaction)
+- **\$1.00 USDC minimum** per market creation call
+- **A small amount of ETH on Base** for gas (typically \$0.01–\$0.05 per transaction)
 - A buffer for other x402 endpoints if you plan to use them (`feed`, `oracle/resolve`)
 
 **Option A — Bridge from Ethereum mainnet:**
@@ -152,7 +152,7 @@ console.log("USDC balance:", formatUnits(balance, 6), "USDC");
 
 ## Step 3: Apply for creator access
 
-Creator approval is a one-time, per-wallet step. Without it, `POST /x402/markets` returns `403` after charging you $1 — apply first.
+Creator approval is a one-time, per-wallet step. Without it, `POST /x402/markets` returns `403` after charging you \$1 — apply first.
 
 1. Visit [blockforecast.io/apply](/creators/apply).
 2. Click **Connect wallet** and choose **External wallet**.
@@ -177,7 +177,7 @@ curl "https://blockforecast.io/api/v2/creator/status?address=0xYourAgentAddress"
 # }
 ```
 
-Always poll this before calling `POST /x402/markets`. The $1 payment is **not refundable** if the call fails the creator gate (returns 403).
+Always poll this before calling `POST /x402/markets`. The \$1 payment is **not refundable** if the call fails the creator gate (returns 403).
 
 ---
 
